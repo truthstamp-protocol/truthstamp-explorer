@@ -6,7 +6,7 @@ Public explorer UI/backend.
 The public explorer for the TruthStamp Protocol — browse, search, and 
 verify permanent stamps on MegaETH.
 
-🔍 **Live at:** https://truthstamp.xyz/explorer.html
+🔍 **Live at:** https://truthstamp.io/explorer.html
 
 ---
 

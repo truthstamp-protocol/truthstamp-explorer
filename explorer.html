@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Explorer — TruthStamp</title>
+<meta name="description" content="Explore public stamps, sealed predictions, and revealed truths — permanently on MegaETH."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#F8F8F5;--surface:#FFFFFF;--surface-alt:#F2F2EE;
+  --border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.12);
+  --text:#1A1A1A;--text-sec:#5F5E5A;--text-muted:#9B9A96;
+  --brand:#2854E8;--brand-dark:#1D3FB8;--brand-bg:#EBF0FD;--brand-mid:rgba(40,84,232,0.12);
+  --green:#1D9E75;--green-bg:#E1F5EE;--green-border:rgba(29,158,117,0.25);
+  --amber:#BA7517;--amber-bg:#FEF3CD;--amber-border:rgba(186,117,23,0.22);--amber-fill:rgba(254,243,205,0.6);
+  --purple:#534AB7;--purple-bg:#EEEDFE;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --cyan:#0E7490;--cyan-bg:#E0F2FE;
+  --font-sans:'Inter',-apple-system,system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --r-sm:6px;--r-md:8px;--r-lg:12px;
+  --nav-h:60px;--sidebar-w:240px;--right-w:300px;
+  --shadow-card:0 1px 3px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-hover:0 4px 14px rgba(0,0,0,0.1),0 0 0 1px rgba(0,0,0,0.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:var(--font-sans);border:none;background:none}
+.nav{position:sticky;top:0;z-index:100;height:var(--nav-h);background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:0}
+.nav-logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;letter-spacing:-0.3px;color:var(--text);flex-shrink:0;margin-right:28px}
+.nav-logo-icon{width:30px;height:30px;background:var(--brand);border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{padding:6px 13px;font-size:14px;font-weight:450;color:var(--text-sec);border-radius:var(--r-sm);transition:color .15s,background .15s;position:relative}
+.nav-links a:hover{color:var(--text);background:var(--surface-alt)}
+.nav-links a.active{color:var(--brand);font-weight:500}
+.nav-links a.active::after{content:'';position:absolute;bottom:-18px;left:13px;right:13px;height:2px;background:var(--brand);border-radius:2px}
+.nav-search{flex:1;max-width:360px;margin-left:16px;position:relative}
+.nav-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none}
+.nav-search input{width:100%;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--r-md);color:var(--text);font-family:var(--font-sans);font-size:13.5px;padding:7.5px 36px 7.5px 34px;outline:none;transition:border .2s,box-shadow .2s}
+.nav-search input::placeholder{color:var(--text-muted)}
+.nav-search input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mid);background:#fff}
+.nav-search-slash{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--surface-alt);color:var(--text-muted);font-family:var(--font-mono);font-size:11px;padding:1px 5px;border-radius:4px;border:1px solid var(--border);pointer-events:none}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn-ghost{color:var(--text-sec);font-size:13.5px;font-weight:450;padding:7px 14px;border-radius:var(--r-sm);transition:color .15s,background .15s}
+.btn-ghost:hover{color:var(--text);background:var(--surface-alt)}
+.btn-primary{background:var(--brand);color:#fff;font-size:13.5px;font-weight:600;padding:7px 18px;border-radius:var(--r-md);box-shadow:0 1px 3px rgba(40,84,232,0.3);transition:background .15s,transform .1s,box-shadow .15s}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 3px 8px rgba(40,84,232,0.3)}
+.hamburger{display:none;color:var(--text-sec);font-size:22px;padding:4px}
+.mob-search-btn{display:none;color:var(--text-sec);font-size:19px;padding:6px;border-radius:var(--r-sm)}
+.today-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.today-label{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--text);flex-shrink:0}
+.live-chip{display:inline-flex;align-items:center;gap:5px;background:#ECFDF5;color:#059669;font-size:11px;font-weight:700;letter-spacing:0.4px;padding:2px 8px;border-radius:20px;border:1px solid rgba(5,150,105,0.2)}
+.live-chip::before{content:'';width:6px;height:6px;background:#10B981;border-radius:50%;animation:livepulse 2s infinite}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
+.today-stats{display:flex;align-items:center;flex-wrap:wrap}
+.today-stat{display:flex;align-items:baseline;gap:6px;padding:0 20px;position:relative}
+.today-stat+.today-stat::before{content:'·';position:absolute;left:0;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.today-stat:first-child{padding-left:0}
+.today-stat-num{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1}
+.today-stat-label{font-size:12px;color:var(--text-muted)}
+.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr var(--right-w);max-width:1440px;margin:0 auto;min-height:calc(100vh - var(--nav-h) - 54px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 0 40px;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sidebar-section{padding:0 12px 16px}
+.sidebar-section+.sidebar-section{border-top:1px solid var(--border);padding-top:16px}
+.sidebar-label{font-size:10.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--text-muted);padding:0 8px;margin-bottom:4px}
+.sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r-sm);width:100%;text-align:left;color:var(--text-sec);font-size:13.5px;transition:background .15s,color .15s}
+.sidebar-item:hover{background:var(--surface-alt);color:var(--text)}
+.sidebar-item.active{background:var(--brand-bg);color:var(--brand);font-weight:500}
+.sidebar-item-left{display:flex;align-items:center;gap:8px}
+.sidebar-icon{font-size:14px}
+.sidebar-count{font-size:11.5px;font-weight:600;color:var(--text-muted);background:var(--surface-alt);padding:1px 7px;border-radius:20px;min-width:24px;text-align:center}
+.sidebar-item.active .sidebar-count{background:var(--brand-bg);color:var(--brand)}
+.sidebar-cta{margin:16px 12px 0;background:var(--brand);border-radius:var(--r-lg);padding:14px 16px;color:#fff}
+.sidebar-cta-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.sidebar-cta-sub{font-size:12px;color:rgba(255,255,255,0.78);margin-bottom:12px;line-height:1.45}
+.sidebar-cta-btn{display:block;width:100%;background:rgba(0,0,0,0.18);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:600;padding:8px;border-radius:7px;cursor:pointer;transition:background .15s;border:none}
+.sidebar-cta-btn:hover{background:rgba(0,0,0,0.28)}
+.feed{padding:0 0 60px;overflow:visible}
+.feed-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;position:sticky;top:var(--nav-h);background:rgba(248,248,245,0.97);backdrop-filter:blur(8px);z-index:50;border-bottom:1px solid var(--border)}
+.feed-title{font-size:16px;font-weight:600}
+.feed-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+.sort-btn{display:flex;align-items:center;gap:6px;color:var(--text-sec);font-size:12.5px;font-weight:450;padding:6px 12px;border-radius:var(--r-sm);border:1px solid var(--border-md);transition:border-color .15s,color .15s}
+.sort-btn:hover{border-color:var(--brand);color:var(--brand)}
+.filter-bar{padding:12px 24px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--surface)}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:500;border:1.5px solid var(--border-md);color:var(--text-sec);cursor:pointer;transition:all .15s;background:var(--surface)}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.stamp-list{padding:10px 0;overflow:visible}
+.feed-intro{padding:8px 24px 4px;font-size:13px;color:var(--text-muted);line-height:1.5}
+.stamp-card{margin:0 20px 10px;background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;cursor:pointer;box-shadow:var(--shadow-card);transition:box-shadow .2s,transform .15s;position:relative;border-left:3px solid transparent;word-break:break-word;overflow-wrap:break-word}
+.stamp-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+.stamp-card.public{border-left-color:var(--green)}
+.stamp-card.sealed{border-left-color:var(--amber)}
+.stamp-card.revealed{border-left-color:var(--purple)}
+.stamp-card.url-type{border-left-color:var(--cyan)}
+.stamp-card.hash-only{border-left-color:var(--text-muted)}
+.stamp-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;min-width:0}
+.stamp-avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.stamp-meta{flex:1;min-width:0}
+.stamp-author{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stamp-sub{font-size:12px;color:var(--text-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stamp-badges{display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:50%}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.1px;white-space:nowrap}
+.badge-type{background:var(--surface-alt);color:var(--text-sec)}
+.badge-public{background:var(--green-bg);color:var(--green)}
+.badge-sealed{background:var(--amber-bg);color:var(--amber)}
+.badge-revealed{background:var(--purple-bg);color:var(--purple)}
+.badge-pending{background:var(--amber-bg);color:var(--amber)}
+.badge-hash{background:var(--surface-alt);color:var(--text-muted)}
+.stamp-content{font-size:14.5px;line-height:1.55;color:var(--text);margin-bottom:12px;overflow-wrap:break-word;word-break:break-word}
+.reveal-row{display:flex;align-items:flex-start;gap:8px;background:var(--amber-fill);border:1px solid var(--amber-border);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:10px;font-size:12.5px;font-weight:500;color:var(--amber);flex-wrap:wrap;overflow-wrap:break-word;word-break:break-word}
+.stamp-sealed-msg{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-bottom:10px;overflow-wrap:break-word;word-break:break-word;min-width:0}
+.stamp-sealed-msg span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.stamp-url-link{color:var(--brand);font-size:13px;word-break:break-all;overflow-wrap:anywhere;display:flex;align-items:flex-start;gap:5px;margin-bottom:10px;min-width:0}
+.stamp-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-width:0}
+.stamp-hash{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden}
+.stamp-hash-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.stamp-hash a{color:inherit;transition:color .15s;flex-shrink:0}
+.stamp-hash a:hover{color:var(--brand)}
+.proof-link{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;color:var(--brand);padding:5px 12px;background:var(--brand-bg);border-radius:var(--r-sm);transition:background .15s;white-space:nowrap;flex-shrink:0}
+.proof-link:hover{background:rgba(40,84,232,0.18)}
+.arweave-link{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--purple);font-weight:500;transition:color .15s;white-space:nowrap;flex-shrink:0}
+.arweave-link:hover{color:var(--brand)}
+.scroll-sentinel{height:1px;margin-top:8px}
+.scroll-loading{padding:20px 24px;text-align:center;color:var(--text-muted);font-size:13px;display:none}
+.scroll-loading.show{display:block}
+.feed-loading{padding:48px 24px;text-align:center;color:var(--text-muted)}
+.feed-spinner{width:32px;height:32px;border:3px solid var(--border-md);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.feed-empty{padding:48px 24px;text-align:center;color:var(--text-muted)}
+.feed-empty-icon{font-size:2.5rem;margin-bottom:12px}
+.feed-empty h3{font-size:15px;color:var(--text-sec);margin-bottom:6px}
+.load-more-btn{display:block;margin:8px 20px 0;padding:12px;border:1.5px dashed var(--border-md);border-radius:var(--r-lg);color:var(--text-muted);font-size:13.5px;font-weight:500;transition:all .15s;background:none;cursor:pointer}
+.load-more-btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-bg)}
+.right-panel{padding:20px 18px;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;scrollbar-width:none}
+.right-panel::-webkit-scrollbar{display:none}
+.panel-card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-card);padding:16px;margin-bottom:14px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.panel-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--text-sec)}
+.view-all{font-size:12px;font-weight:500;color:var(--brand);transition:opacity .15s}
+.view-all:hover{opacity:.75}
+.cal-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cal-item:last-child{border-bottom:none;padding-bottom:0}
+.cal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.cal-dot.green{background:var(--green)}.cal-dot.amber{background:var(--amber)}.cal-dot.brand{background:var(--brand)}.cal-dot.muted{background:var(--text-muted)}
+.cal-info{flex:1}
+.cal-when{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px}
+.cal-desc{font-size:12px;color:var(--text-sec);line-height:1.4;margin-bottom:4px}
+.cal-count{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+.cal-emoji{font-size:22px;flex-shrink:0}
+.why-body{font-size:13px;color:var(--text-sec);line-height:1.55;margin-bottom:10px}
+.why-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);color:var(--green);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--green-border)}
+.creator-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.creator-item:last-child{border-bottom:none;padding-bottom:0}
+.creator-rank{font-size:13px;font-weight:700;color:var(--text-muted);width:16px}
+.creator-avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;flex-shrink:0;font-weight:700;color:#fff}
+.creator-info{flex:1}
+.creator-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.creator-sub{font-size:11.5px;color:var(--text-muted)}
+.creator-stamps{font-size:13px;font-weight:700;color:var(--brand)}
+footer{border-top:1px solid var(--border);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--surface)}
+.footer-copy{font-size:12.5px;color:var(--text-muted)}
+.footer-links{display:flex;gap:18px;list-style:none}
+.footer-links a{font-size:12.5px;color:var(--text-muted);transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+.footer-socials{display:flex;gap:14px}
+.footer-socials a{color:var(--text-muted);font-size:16px;transition:color .15s}
+.footer-socials a:hover{color:var(--text)}
+.mobile-tabs{display:none}
+.mobile-bottom-nav{display:none}
+.drawer-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.filter-drawer{position:fixed;bottom:0;left:0;right:0;z-index:400;background:var(--surface);border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0);max-height:80vh;overflow-y:auto}
+.filter-drawer.open{transform:translateY(0)}
+.drawer-handle{width:36px;height:4px;background:var(--border-md);border-radius:2px;margin:0 auto 20px}
+.drawer-close{position:absolute;top:16px;right:20px;background:var(--surface-alt);width:28px;height:28px;border-radius:50%;font-size:14px;display:grid;place-items:center;cursor:pointer;color:var(--text-sec)}
+.drawer-section{margin-bottom:20px}
+.drawer-section-title{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.drawer-options{display:flex;flex-direction:column;gap:6px}
+.drawer-option{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surface-alt);border-radius:var(--r-sm);cursor:pointer;font-size:14px;color:var(--text)}
+.drawer-option-left{display:flex;align-items:center;gap:10px}
+.drawer-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border-md);display:grid;place-items:center;font-size:11px;color:transparent}
+.drawer-check.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.drawer-apply{display:block;width:100%;background:var(--brand);border:none;color:#fff;font-family:var(--font-sans);font-size:15px;font-weight:600;padding:14px;border-radius:var(--r-md);cursor:pointer;margin-top:4px}
+.drawer-reset{display:block;width:100%;background:none;border:none;color:var(--text-muted);font-family:var(--font-sans);font-size:14px;padding:10px;cursor:pointer}
+.drawer-divider{height:1px;background:var(--border-md);margin:8px 0 20px}
+.drawer-panel{background:var(--surface-alt);border-radius:var(--r-lg);padding:14px;margin-bottom:14px}
+.drawer-panel-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--text-sec);margin-bottom:12px}
+.drawer-cal-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.drawer-cal-item:last-child{border-bottom:none;padding-bottom:0}
+.drawer-cal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.drawer-cal-info{flex:1}
+.drawer-cal-when{font-size:13px;font-weight:600;color:var(--text)}
+.drawer-cal-desc{font-size:12px;color:var(--text-sec);margin-top:2px;line-height:1.4}
+.drawer-cal-count{font-size:11px;color:var(--text-muted);margin-top:3px}
+.drawer-cal-emoji{font-size:20px;flex-shrink:0}
+.drawer-view-all{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;margin-top:10px;padding:8px;font-size:13px;font-weight:500;color:var(--brand);border:1.5px solid var(--brand-bg);border-radius:var(--r-sm);background:var(--brand-bg);transition:background .15s}
+.drawer-view-all:hover{background:rgba(40,84,232,0.15)}
+.drawer-creator-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.drawer-creator-item:last-child{border-bottom:none;padding-bottom:0}
+.drawer-creator-rank{font-size:13px;font-weight:700;color:var(--text-muted);width:16px;flex-shrink:0}
+.drawer-creator-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.drawer-creator-info{flex:1;min-width:0}
+.drawer-creator-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer-creator-sub{font-size:11.5px;color:var(--text-muted)}
+.drawer-creator-count{font-size:14px;font-weight:700;color:var(--brand);flex-shrink:0}
+@media(max-width:900px){
+  :root{--page-pad:16px;--card-radius:16px;--nav-h:56px}
+  .layout{grid-template-columns:1fr;width:100%;overflow-x:hidden}
+  .sidebar,.right-panel{display:none}
+  .feed{width:100%;min-width:0;overflow-x:hidden}
+  .nav{height:var(--nav-h);padding:0 var(--page-pad);display:flex;align-items:center;justify-content:space-between;gap:0}
+  .nav-logo{margin-right:0;font-size:15px;line-height:1;display:flex;align-items:center;gap:8px}
+  .nav-links,.nav-search,.btn-ghost,.btn-primary{display:none!important}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:4px}
+  .mob-search-btn,.hamburger{display:flex!important;align-items:center;justify-content:center;width:40px;height:40px;border-radius:var(--r-sm);font-size:18px;line-height:1;color:var(--text-sec);flex-shrink:0;padding:0}
+  .today-bar{margin:12px var(--page-pad) 0;padding:14px 16px;border-radius:16px;border:1px solid var(--border-md);background:var(--surface);box-shadow:var(--shadow-card);flex-direction:column;align-items:flex-start;gap:10px}
+  .today-label{font-size:13px;font-weight:600;line-height:1}
+  .today-stats{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:0}
+  .today-stat{display:flex;flex-direction:row;align-items:baseline;gap:5px;padding:0;position:static}
+  .today-stat+.today-stat::before{display:none}
+  .today-stat-num{font-size:20px;font-weight:700;letter-spacing:-0.5px;line-height:1}
+  .today-stat-label{font-size:11px;color:var(--text-muted);line-height:1}
+  .mobile-tabs{display:flex;overflow-x:auto;scrollbar-width:none;gap:8px;padding:12px var(--page-pad);border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:var(--nav-h);z-index:40;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(to right,black 88%,transparent);mask-image:linear-gradient(to right,black 88%,transparent)}
+  .mobile-tabs::-webkit-scrollbar{display:none}
+  .mob-tab{flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;background:var(--surface-alt);color:var(--text-sec);border:1.5px solid var(--border-md);transition:all .15s;white-space:nowrap;line-height:1.2}
+  .mob-tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+  .feed-header{position:static;padding:14px var(--page-pad) 10px;background:var(--bg)}
+  .feed-title{font-size:15px}
+  .filter-bar{position:static;padding:8px var(--page-pad);gap:6px;-webkit-mask-image:linear-gradient(to right,black 88%,transparent);mask-image:linear-gradient(to right,black 88%,transparent)}
+  .chip{padding:5px 12px;font-size:12px}
+  .feed-intro{padding:8px var(--page-pad) 0;font-size:12.5px;color:var(--text-muted);line-height:1.5}
+  .stamp-list{padding:10px 0 10px;overflow:visible;min-width:0;width:100%;scroll-margin-top:8px}
+  .stamp-card{margin:0 var(--page-pad) 10px;border-radius:var(--card-radius);padding:14px 14px;box-sizing:border-box;min-width:0}
+  .stamp-card-top{gap:8px}
+  .stamp-meta{min-width:0;flex:1}
+  .stamp-author{font-size:13px}
+  .stamp-sub{font-size:11.5px}
+  .stamp-badges{max-width:55%;flex-wrap:wrap;gap:4px}
+  .badge{font-size:10.5px;padding:2px 8px}
+  .stamp-footer{flex-wrap:wrap;gap:6px}
+  .stamp-hash-text{max-width:120px}
+  .stamp-content{font-size:14px}
+  .load-more-btn{margin:8px var(--page-pad) 0;width:auto}
+  body{padding-bottom:calc(78px + env(safe-area-inset-bottom,12px))}
+  .mobile-bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,8px)}
+  .mobile-bottom-nav ul{display:flex;justify-content:space-around;align-items:center;list-style:none;height:56px;padding:0;margin:0}
+  .mob-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:44px;padding:4px 2px;font-size:10px;font-weight:500;color:var(--text-muted);cursor:pointer;background:none;border:none;transition:color .15s;line-height:1}
+  .mob-nav-item.active{color:var(--brand)}
+  .mob-nav-icon{width:22px;height:22px;display:block;flex-shrink:0}
+  .mob-nav-item.stamp-cta .mob-nav-icon{background:var(--brand);color:#fff;border-radius:14px;width:46px;height:46px;display:grid;place-items:center;margin-top:-22px;box-shadow:0 8px 24px rgba(40,84,232,0.35),0 2px 6px rgba(40,84,232,0.2);padding:10px}
+  .mob-nav-item.stamp-cta{color:var(--brand);font-weight:600;font-size:10px}
+  footer{flex-direction:column;align-items:center;gap:8px;padding:16px var(--page-pad);text-align:center}
+  .footer-copy{display:none}
+  .footer-links{gap:16px}
+  .footer-links li:nth-child(n+4){display:none}
+  .footer-socials{gap:20px}
+}
+.mob-search-overlay{display:none}
+.mob-search-expanded{display:none;position:sticky;top:var(--nav-h);z-index:99;background:var(--surface);border-bottom:2px solid var(--brand);padding:10px var(--page-pad);gap:10px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.mob-search-expanded.open{display:flex}
+.mob-search-expanded input{flex:1;background:var(--bg);border:1.5px solid var(--border-md);border-radius:var(--r-md);color:var(--text);font-family:var(--font-sans);font-size:16px;padding:10px 14px;outline:none;transition:border .15s,box-shadow .15s}
+.mob-search-expanded input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mid);background:#fff}
+.mob-search-cancel-btn{color:var(--brand);font-size:14px;font-weight:600;white-space:nowrap;flex-shrink:0;padding:8px 4px;background:none;border:none;cursor:pointer}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">T</div>TruthStamp</a>
+  <ul class="nav-links">
+    <li><a href="explorer.html" class="active">Explorer</a></li>
+    <li><a href="verify.html">Verify</a></li>
+    <li><a href="usecases.html">Use cases</a></li>
+    <li><a href="how-it-works.html">How it works</a></li>
+  </ul>
+  <div class="nav-search">
+    <span class="nav-search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search stamps, creators, keywords…"/>
+    <span class="nav-search-slash">/</span>
+  </div>
+  <div class="nav-right">
+    <a href="auth.html" class="btn-ghost">Sign in</a>
+    <a href="stamp.html" class="btn-primary">+ New stamp</a>
+    <button class="mob-search-btn" onclick="openMobSearch()" title="Search">🔍</button>
+    <button class="hamburger" onclick="openFilterDrawer()">☰</button>
+  </div>
+</nav>
+<div class="mob-search-expanded" id="mobSearchExpanded">
+  <input type="search" id="mobSearchInput" placeholder="Search stamps, creators, hash…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
+  <button class="mob-search-cancel-btn" onclick="closeMobSearch()">Cancel</button>
+</div>
+<div class="today-bar">
+  <div class="today-label">📡 TruthStamp Protocol <div class="live-chip">LIVE</div></div>
+  <div class="today-stats">
+    <div class="today-stat"><span class="today-stat-num" id="st-total">—</span><span class="today-stat-label">Total stamps</span></div>
+    <div class="today-stat"><span class="today-stat-num" id="st-reveals">—</span><span class="today-stat-label">Revealed</span></div>
+    <div class="today-stat"><span class="today-stat-num" id="st-seals">—</span><span class="today-stat-label">Seals ticking</span></div>
+    <div class="today-stat"><span class="today-stat-num" id="st-creators">—</span><span class="today-stat-label">Creators</span></div>
+  </div>
+</div>
+<div class="mobile-tabs">
+  <button class="mob-tab active" data-feed="latest">Latest</button>
+  <button class="mob-tab" data-feed="trending">Trending</button>
+  <button class="mob-tab" data-feed="reveals">Reveals</button>
+  <button class="mob-tab" data-feed="upcoming">Upcoming</button>
+  <button class="mob-tab" data-feed="bitcoin">₿ Bitcoin</button>
+</div>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Feed</div>
+      <button class="sidebar-item active" data-feed="latest"><div class="sidebar-item-left"><span class="sidebar-icon">⚡</span>Latest</div><span class="sidebar-count" id="cnt-total">—</span></button>
+      <button class="sidebar-item" data-feed="trending"><div class="sidebar-item-left"><span class="sidebar-icon">🔥</span>Trending</div><span class="sidebar-count">—</span></button>
+      <button class="sidebar-item" data-feed="reveals"><div class="sidebar-item-left"><span class="sidebar-icon">🔓</span>Reveals</div><span class="sidebar-count" id="cnt-reveals">—</span></button>
+      <button class="sidebar-item" data-feed="upcoming"><div class="sidebar-item-left"><span class="sidebar-icon">⏰</span>Upcoming seals</div><span class="sidebar-count" id="cnt-sealed">—</span></button>
+      <button class="sidebar-item" data-feed="bitcoin"><div class="sidebar-item-left"><span class="sidebar-icon">₿</span>Bitcoin Archived</div><span class="sidebar-count" id="cnt-bitcoin">—</span></button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Type</div>
+      <button class="sidebar-item" data-type="text"><div class="sidebar-item-left"><span class="sidebar-icon">📝</span>Text</div><span class="sidebar-count" id="cnt-text">—</span></button>
+      <button class="sidebar-item" data-type="file"><div class="sidebar-item-left"><span class="sidebar-icon">📄</span>File</div><span class="sidebar-count" id="cnt-file">—</span></button>
+      <button class="sidebar-item" data-type="url"><div class="sidebar-item-left"><span class="sidebar-icon">🔗</span>URL</div><span class="sidebar-count" id="cnt-url">—</span></button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Category</div>
+      <button class="sidebar-item" data-cat="Predictions"><div class="sidebar-item-left"><span class="sidebar-icon">🎯</span>Predictions</div><span class="sidebar-count" id="cnt-pred">—</span></button>
+      <button class="sidebar-item" data-cat="Research"><div class="sidebar-item-left"><span class="sidebar-icon">🔬</span>Research</div><span class="sidebar-count">—</span></button>
+      <button class="sidebar-item" data-cat="Creative"><div class="sidebar-item-left"><span class="sidebar-icon">🎨</span>Creative</div><span class="sidebar-count">—</span></button>
+      <button class="sidebar-item" data-cat="News"><div class="sidebar-item-left"><span class="sidebar-icon">📰</span>News</div><span class="sidebar-count">—</span></button>
+      <button class="sidebar-item" data-cat="Crypto"><div class="sidebar-item-left"><span class="sidebar-icon">₿</span>Crypto</div><span class="sidebar-count">—</span></button>
+    </div>
+    <div class="sidebar-cta">
+      <div class="sidebar-cta-title">Create your own stamp</div>
+      <div class="sidebar-cta-sub">Lock in your ideas, predictions or proofs — permanently.</div>
+      <button class="sidebar-cta-btn" onclick="location.href='stamp.html'">+ New stamp</button>
+    </div>
+  </aside>
+  <main class="feed">
+    <div class="feed-header">
+      <div>
+        <div class="feed-title" id="feedTitle">Latest stamps</div>
+        <div class="feed-subtitle" id="feedSubtitle"></div>
+      </div>
+      <button class="sort-btn" onclick="toggleSort()">⇅ <span id="sortLbl">Newest first</span></button>
+    </div>
+    <div class="filter-bar">
+      <button class="chip active" data-chip="all">All</button>
+      <button class="chip" data-chip="Predictions">Predictions</button>
+      <button class="chip" data-chip="Research">Research</button>
+      <button class="chip" data-chip="Creative">Creative</button>
+      <button class="chip" data-chip="Crypto">Crypto</button>
+      <button class="chip" data-chip="url">URLs</button>
+      <button class="chip" data-chip="file">Files</button>
+      <button class="chip" onclick="openFilterDrawer()">• • •</button>
+    </div>
+    <div class="stamp-list" id="stampList">
+      <p class="feed-intro">Live public proofs from creators, researchers, and predictions — permanently on MegaETH.</p>
+      <div class="feed-loading"><div class="feed-spinner"></div><p>Loading stamps from MegaETH…</p></div>
+    </div>
+    <button class="load-more-btn" id="loadMoreBtn" style="display:none" onclick="loadMore()">Load more stamps</button>
+    <div class="scroll-sentinel" id="scrollSentinel"></div>
+    <div class="scroll-loading" id="scrollLoading">Loading more stamps…</div>
+  </main>
+  <aside class="right-panel">
+    <div class="panel-card">
+      <div class="panel-header"><div class="panel-title">📅 Reveal Calendar</div></div>
+      <div id="calendarItems"><div style="text-align:center;color:var(--text-muted);font-size:12px;padding:12px 0">Loading…</div></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-header"><div class="panel-title">ℹ Why stamp publicly?</div></div>
+      <div class="why-body">Public stamps become independently verifiable permanent records on MegaETH and Arweave — even if TruthStamp disappears.</div>
+      <div class="why-badge">🛡 Permanent · Immutable</div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-header"><div class="panel-title">🏆 Top Creators</div></div>
+      <div id="topCreators"><div style="text-align:center;color:var(--text-muted);font-size:12px;padding:12px 0">Loading…</div></div>
+    </div>
+  </aside>
+</div>
+<footer>
+  <div class="footer-copy">© 2026 TruthStamp · Built on MegaETH &amp; Arweave</div>
+  <ul class="footer-links">
+    <li><a href="privacy.html">Privacy</a></li>
+    <li><a href="terms.html">Terms</a></li>
+    <li><a href="verify.html">Verify stamp</a></li>
+    <li><a href="usecases.html">Use cases</a></li>
+  </ul>
+  <div class="footer-socials">
+    <a href="https://x.com/truthstamp" target="_blank" rel="noopener" title="X/Twitter">𝕏</a>
+    <a href="#" title="Discord">💬</a>
+  </div>
+</footer>
+<nav class="mobile-bottom-nav">
+  <ul>
+    <li><button class="mob-nav-item" onclick="location.href='index.html'"><svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button></li>
+    <li><button class="mob-nav-item active"><svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</button></li>
+    <li><button class="mob-nav-item stamp-cta" onclick="location.href='stamp.html'"><svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Stamp</button></li>
+    <li><button class="mob-nav-item" onclick="location.href='verify.html'"><svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Verify</button></li>
+    <li><button class="mob-nav-item" onclick="location.href='dashboard.html'"><svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</button></li>
+  </ul>
+</nav>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeFilterDrawer()"></div>
+<div class="filter-drawer" id="filterDrawer">
+  <div class="drawer-handle"></div>
+  <button class="drawer-close" onclick="closeFilterDrawer()">✕</button>
+  <div class="drawer-section">
+    <div class="drawer-section-title">Type</div>
+    <div class="drawer-options">
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>📝</span>Text</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>📄</span>File</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>🔗</span>URL</div><div class="drawer-check on">✓</div></div>
+    </div>
+  </div>
+  <div class="drawer-section">
+    <div class="drawer-section-title">Category</div>
+    <div class="drawer-options">
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>🎯</span>Predictions</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>🔬</span>Research</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>🎨</span>Creative</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>📰</span>News</div><div class="drawer-check on">✓</div></div>
+      <div class="drawer-option" onclick="toggleOpt(this)"><div class="drawer-option-left"><span>₿</span>Crypto</div><div class="drawer-check on">✓</div></div>
+    </div>
+  </div>
+  <button class="drawer-apply" onclick="applyDrawerFilters()">Apply filters</button>
+  <button class="drawer-reset" onclick="resetOpts()">Reset all</button>
+  <div class="drawer-divider"></div>
+  <div class="drawer-panel">
+    <div class="drawer-panel-title">📅 Reveal Calendar</div>
+    <div id="drawerCalendar"><div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:13px">Loading…</div></div>
+    <button class="drawer-view-all" onclick="closeFilterDrawer()">View full calendar →</button>
+  </div>
+  <div class="drawer-panel">
+    <div class="drawer-panel-title">🏆 Top Creators</div>
+    <div id="drawerCreators"><div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:13px">Loading…</div></div>
+    <button class="drawer-view-all" onclick="closeFilterDrawer()">View all creators →</button>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/nav.js"></script>
+<script>
+const cfg      = window.TRUTHSTAMP_CONFIG ?? {};
+const EXPLORER = cfg.CONTRACT_EXPLORER ?? 'https://megaeth-testnet-v2.blockscout.com';
+const CONTRACT = cfg.CONTRACT_ADDRESS  ?? '';
+const PAGE_SIZE = 20;
+
+const CATEGORY_MAP = {
+  prediction:'Predictions', forecast:'Predictions', pricecheck:'Predictions', bet:'Predictions', call:'Predictions',
+  research:'Research', paper:'Research', ai:'Research', study:'Research', data:'Research', science:'Research',
+  creative:'Creative', art:'Creative', design:'Creative', music:'Creative', story:'Creative', poem:'Creative',
+  news:'News', journalism:'News', report:'News', breaking:'News',
+  bitcoin:'Crypto', btc:'Crypto', eth:'Crypto', defi:'Crypto', crypto:'Crypto', nft:'Crypto', web3:'Crypto',
+};
+function getCategories(tags) {
+  if (!tags) return [];
+  const arr = Array.isArray(tags) ? tags : (typeof tags === 'string' ? JSON.parse(tags || '[]') : []);
+  const cats = new Set();
+  arr.forEach(t => { const c = CATEGORY_MAP[t.toLowerCase()]; if (c) cats.add(c); });
+  return [...cats];
+}
+
+// ── Public identity resolution ────────────────────────────────────────────
+// Rules (permanent, privacy-first):
+//   Wallet user  → truncated wallet  e.g. 0x5b77…5b0f  (pseudonymous by design)
+//   Email user with public_handle set → their chosen handle  e.g. "cryptolady"
+//   Email user with NO public_handle  → "Creator"  (never shows UUID or real name)
+//
+// The stamp row already carries creator_public_handle from stamps_with_creator view.
+// No extra DB call needed for cards — just read the field directly.
+// Top Creators and drawer still need a separate fetch since they group by identity.
+
+function isUUID(id) {
+  return id && id.includes('-') && !id.startsWith('0x') && id.length > 20;
+}
+
+// Friendly fallback for email users — "Creator_4a2f" from first 4 chars of UUID
+function creatorTag(uuid) {
+  const suffix = uuid.replace(/-/g, '').slice(0, 4).toLowerCase();
+  return 'Creator_' + suffix;
+}
+
+// Resolve display name from a full stamp row (view columns available, zero extra queries)
+// creator_wallet_address = from profiles join in view (user's personal wallet)
+// creator_address        = platform wallet — DO NOT use for display
+function resolveNameFromStamp(s) {
+  const identity = s.creator_identity || '';
+  const userWallet = s.creator_wallet_address || ''; // personal wallet from profiles join
+
+  // If identity itself is a wallet address (old wallet-auth stamps)
+  if (identity.startsWith('0x') && identity.length >= 10)
+    return s.creator_public_handle || (identity.slice(0, 6) + '…' + identity.slice(-4));
+
+  // UUID identity with a personal wallet on profile = wallet user
+  if (isUUID(identity) && userWallet.startsWith('0x') && userWallet.length >= 10)
+    return s.creator_public_handle || (userWallet.slice(0, 6) + '…' + userWallet.slice(-4));
+
+  // UUID identity with NO personal wallet = email user
+  if (isUUID(identity))
+    return s.creator_public_handle || creatorTag(identity);
+
+  return identity || 'Creator';
+}
+
+// For Top Creators / drawer: identity strings only, need separate lookup
+// _handleCache stores: { identity → public_handle | null }
+// _walletCache stores: { uuid → personal wallet address | null }
+const _handleCache = {};
+const _walletCache = {}; // profile.wallet_address (NOT creator_address/platform wallet)
+
+async function prefetchHandles(identities) {
+  const uuids = [...new Set(identities.filter(id => isUUID(id) && !(id in _handleCache)))];
+  const walletIds = [...new Set(identities.filter(id => id.startsWith('0x') && !(id in _handleCache)))];
+
+  try {
+    // UUID identities — fetch public_handle AND wallet_address from profiles
+    if (uuids.length) {
+      const { data } = await window.tsDB
+        .from('profiles').select('id, public_handle, wallet_address').in('id', uuids);
+      (data || []).forEach(p => {
+        _handleCache[p.id] = p.public_handle || null;
+        _walletCache[p.id] = p.wallet_address || null;
+      });
+      uuids.forEach(u => { if (!(u in _handleCache)) { _handleCache[u] = null; _walletCache[u] = null; } });
+    }
+    // Wallet address identities — fetch public_handle only
+    if (walletIds.length) {
+      const { data } = await window.tsDB
+        .from('profiles').select('wallet_address, public_handle').in('wallet_address', walletIds);
+      (data || []).forEach(p => { if (p.wallet_address) _handleCache[p.wallet_address] = p.public_handle || null; });
+      walletIds.forEach(w => { if (!(w in _handleCache)) _handleCache[w] = null; });
+    }
+  } catch(e) { console.warn('[Explorer] prefetchHandles:', e.message); }
+}
+
+// Resolve display name when only identity string available (Top Creators, drawer)
+function resolveNameFromIdentity(identity) {
+  if (!identity) return 'Creator';
+
+  // Identity itself is a wallet address
+  if (identity.startsWith('0x') && identity.length >= 10)
+    return _handleCache[identity] || (identity.slice(0, 6) + '…' + identity.slice(-4));
+
+  if (isUUID(identity)) {
+    // Check if this UUID belongs to a wallet user (has personal wallet in _walletCache)
+    const personalWallet = _walletCache[identity];
+    if (personalWallet && personalWallet.startsWith('0x') && personalWallet.length >= 10)
+      return _handleCache[identity] || (personalWallet.slice(0, 6) + '…' + personalWallet.slice(-4));
+    // Email user
+    return _handleCache[identity] || creatorTag(identity);
+  }
+
+  return identity;
+}
+
+// Avatar initials
+function getAvatarInitial(identity, displayName) {
+  if (!displayName || displayName.startsWith('Creator_')) {
+    // Wallet user — use first 2 hex chars of wallet
+    const w = (identity.startsWith('0x') ? identity : _walletCache[identity] || '');
+    if (w.startsWith('0x')) return w.slice(2, 4).toUpperCase();
+    return 'CR';
+  }
+  // Custom handle or truncated wallet display
+  if (displayName.startsWith('0x')) return displayName.slice(2, 4).toUpperCase();
+  const clean = displayName.replace(/^@/, '').replace(/[^A-Za-z0-9]/g, '');
+  return (clean.slice(0, 2) || displayName.slice(0, 2)).toUpperCase();
+}
+
+// Legacy alias
+async function prefetchNames(stamps) {
+  const ids = stamps.map(s => typeof s === 'string' ? s : (s.creator_identity || s.id || ''));
+  await prefetchHandles(ids);
+}
+
+let allStamps = [], currentFeed = 'latest', currentChip = 'all';
+let sortAsc = false, offset = 0, hasMore = false;
+
+const AVATAR_COLORS = [
+  'linear-gradient(135deg,#6366f1,#818cf8)','linear-gradient(135deg,#0ea5e9,#38bdf8)',
+  'linear-gradient(135deg,#a78bfa,#c4b5fd)','linear-gradient(135deg,#22d3ee,#67e8f9)',
+  'linear-gradient(135deg,#f59e0b,#fbbf24)','linear-gradient(135deg,#ef4444,#f87171)',
+  'linear-gradient(135deg,#10b981,#34d399)','linear-gradient(135deg,#ec4899,#f472b6)',
+];
+function avatarColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str||'').length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60)    return 'just now';
+  if (s < 3600)  return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  if (s < 604800) return Math.floor(s/86400) + 'd ago';
+  return new Date(ts).toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+function timeUntil(ts) {
+  const ms = new Date(ts) - Date.now();
+  if (ms <= 0) return 'now';
+  const m = Math.floor(ms/60000), h = Math.floor(ms/3600000), d = Math.floor(ms/86400000);
+  if (m < 60) return `in ${m}m`;
+  if (h < 24) return `in ${h}h`;
+  if (d === 1) return 'tomorrow';
+  if (d < 7)  return `in ${d} days`;
+  return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}) + ' UTC';
+}
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildCard(s) {
+  const categories = getCategories(s.tags);
+  const isSealed   = s.visibility === 'sealed' && !s.revealed;
+  const isRevealed = s.visibility === 'sealed' && s.revealed;
+  const isPublic   = s.visibility === 'public';
+  const isUrl      = s.content_type === 'url';
+  const isFile     = s.content_type === 'file';
+  const isHashOnly = s.visibility === 'hash_only' || s.visibility === 'none';
+  const sealedUntil = s.sealed_until ? new Date(s.sealed_until) : null;
+  const isOverdue   = isSealed && sealedUntil && sealedUntil <= new Date();
+  const cardClass   = isRevealed ? 'revealed' : isSealed ? 'sealed' : isUrl ? 'url-type' : isHashOnly ? 'hash-only' : 'public';
+  const identity    = s.creator_identity || s.creator_address || '';
+  const displayName = resolveNameFromStamp(s);
+  const avatarInit  = getAvatarInitial(identity, displayName);
+  const timeStr     = s.block_timestamp ? timeAgo(s.block_timestamp) : '';
+  const txLink      = s.tx_hash ? `<a href="${EXPLORER}/tx/${escHtml(s.tx_hash)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a>` : '';
+  const hashDisplay = s.content_hash
+    ? '0x' + s.content_hash.replace(/^\\x/,'').replace(/^0x/,'').slice(0,4) + '…' + s.content_hash.replace(/^\\x/,'').replace(/^0x/,'').slice(-4)
+    : '';
+
+  let contentHtml = '';
+  if (isSealed && !isOverdue) {
+    const rv = sealedUntil ? timeUntil(sealedUntil) + ' · ' + sealedUntil.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}) : '';
+    let _sealHdr = '';
+    if (isUrl && s.text_content) {
+      let _su=s.text_content; try{const _p=JSON.parse(_su);_su=_p.url??_su;}catch{}
+      let _sd=''; try{_sd=new URL(_su).hostname.replace(/^www\./,'');}catch{}
+      const _sht = s.display_title && s.display_title!=='Sealed stamp' && s.display_title.trim()!=='' && s.display_title!==_su;
+      _sealHdr = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:${_sht?'7':'0'}px;">
+          <span style="font-size:16px;line-height:1">🔗</span>
+          <span style="font-size:11.5px;font-weight:600;color:var(--cyan);background:var(--cyan-bg);border:1px solid rgba(14,116,144,.15);padding:2px 9px;border-radius:20px">URL Stamp</span>
+          ${_sd?`<span style="font-size:11.5px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escHtml(_sd)}</span>`:''}
+        </div>
+        ${_sht?`<div style="font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${escHtml(s.display_title)}</div>`:''}
+        <div style="font-size:12px;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono)">${escHtml(_su2)}</div>
+      </div>`;
+    } else if (isFile) {
+      const _fn2=s.file_name||'File', _fm2=s.file_mime_type||'', _fe2=_fn2.includes('.')?_fn2.split('.').pop().toUpperCase():'';
+      let _te2='📄',_tl2=_fe2?_fe2+' File':'File';
+      if(_fm2.startsWith('image/')||/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(_fn2)){_te2='🖼️';_tl2=_fe2?_fe2+' Image':'Image';}
+      else if(_fm2==='application/pdf'||/\.pdf$/i.test(_fn2)){_te2='📕';_tl2='PDF Document';}
+      else if(_fm2.startsWith('text/')||/\.(txt|md|csv)$/i.test(_fn2)){_te2='📝';_tl2=_fe2?_fe2+' Document':'Text File';}
+      else if(/\.(doc|docx)$/i.test(_fn2)){_te2='📘';_tl2='Word Document';}
+      else if(/\.(xls|xlsx)$/i.test(_fn2)){_te2='📊';_tl2='Spreadsheet';}
+      const _ht2=s.display_title&&s.display_title!=='Sealed stamp'&&s.display_title!==_fn2&&s.display_title.trim()!=='';
+      _sealHdr = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:${_ht2?'7':'0'}px;">
+          <span style="font-size:16px;line-height:1">${_te2}</span>
+          <span style="font-size:11.5px;font-weight:600;color:var(--text-sec);background:var(--surface);border:1px solid var(--border);padding:2px 9px;border-radius:20px">${escHtml(_tl2)}</span>
+        </div>
+        ${_ht2?`<div style="font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.display_title)}</div>`:''}
+      </div>`;
+    }
+    contentHtml = `${_sealHdr}<div class="reveal-row">⏱ Reveals ${escHtml(rv)}</div><div class="stamp-sealed-msg">🔒 Sealed. Timestamp locked on-chain.</div>`;
+  } else if (isSealed && isOverdue) {
+    let _sealHdr2 = '';
+    if (isUrl && s.text_content) {
+      let _su2=s.text_content; try{const _p2=JSON.parse(_su2);_su2=_p2.url??_su2;}catch{}
+      let _sd2=''; try{_sd2=new URL(_su2).hostname.replace(/^www\./,'');}catch{}
+      const _sht2=s.display_title&&s.display_title!=='Sealed stamp'&&s.display_title.trim()!==''&&s.display_title!==_su2;
+      _sealHdr2 = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:${_sht2?'7':'0'}px;">
+          <span style="font-size:16px;line-height:1">🔗</span>
+          <span style="font-size:11.5px;font-weight:600;color:var(--cyan);background:var(--cyan-bg);border:1px solid rgba(14,116,144,.15);padding:2px 9px;border-radius:20px">URL Stamp</span>
+          ${_sd2?`<span style="font-size:11.5px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escHtml(_sd2)}</span>`:''}
+        </div>
+        ${_sht2?`<div style="font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${escHtml(s.display_title)}</div>`:''}
+        <div style="font-size:12px;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono)">${escHtml(_su2)}</div>
+      </div>`;
+    } else if (isFile) {
+      const _fn3=s.file_name||'File', _fm3=s.file_mime_type||'', _fe3=_fn3.includes('.')?_fn3.split('.').pop().toUpperCase():'';
+      let _te3='📄',_tl3=_fe3?_fe3+' File':'File';
+      if(_fm3.startsWith('image/')||/\.(png|jpg|jpeg|gif|webp|svg)$/i.test(_fn3)){_te3='🖼️';_tl3=_fe3?_fe3+' Image':'Image';}
+      else if(_fm3==='application/pdf'||/\.pdf$/i.test(_fn3)){_te3='📕';_tl3='PDF Document';}
+      else if(_fm3.startsWith('text/')||/\.(txt|md|csv)$/i.test(_fn3)){_te3='📝';_tl3=_fe3?_fe3+' Document':'Text File';}
+      else if(/\.(doc|docx)$/i.test(_fn3)){_te3='📘';_tl3='Word Document';}
+      else if(/\.(xls|xlsx)$/i.test(_fn3)){_te3='📊';_tl3='Spreadsheet';}
+      const _ht3=s.display_title&&s.display_title!=='Sealed stamp'&&s.display_title!==_fn3&&s.display_title.trim()!=='';
+      _sealHdr2 = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:${_ht3?'7':'0'}px;">
+          <span style="font-size:16px;line-height:1">${_te3}</span>
+          <span style="font-size:11.5px;font-weight:600;color:var(--text-sec);background:var(--surface);border:1px solid var(--border);padding:2px 9px;border-radius:20px">${escHtml(_tl3)}</span>
+        </div>
+        ${_ht3?`<div style="font-size:13.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.display_title)}</div>`:''}
+      </div>`;
+    }
+    contentHtml = `${_sealHdr2}<div class="reveal-row" style="background:rgba(248,220,255,0.4);border-color:rgba(83,74,183,0.2);color:var(--purple)">⚡ Awaiting on-chain reveal</div><div class="stamp-sealed-msg">🔒 Sealed. Timestamp locked on-chain.</div>`;
+  } else if (isHashOnly) {
+    contentHtml = `<div class="stamp-sealed-msg">🔐 Hash-only · maximum privacy</div>`;
+  } else if (isUrl && s.text_content) {
+    let url = s.text_content;
+    try { const p = JSON.parse(url); url = p.url ?? url; } catch {}
+    let _domain=''; try{_domain=new URL(url).hostname.replace(/^www\./, '');}catch{}
+    const _hasTitle7 = s.display_title && s.display_title!=='Sealed stamp'
+      && s.display_title.trim()!=='' && s.display_title!==url;
+    const _shortUrl = url.length>72 ? url.slice(0,72)+'…' : url;
+    contentHtml = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 15px;margin-bottom:2px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+        <span style="font-size:17px;line-height:1">🔗</span>
+        <span style="font-size:11.5px;font-weight:600;color:var(--cyan);background:var(--cyan-bg);border:1px solid rgba(14,116,144,.15);padding:2px 9px;border-radius:20px;white-space:nowrap">URL Stamp</span>
+        ${_domain?`<span style="font-size:11.5px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${escHtml(_domain)}</span>`:''}
+      </div>
+      ${_hasTitle7?`<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.display_title)}</div>`:''}
+      <div style="font-size:12px;color:var(--brand);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono)">${escHtml(_shortUrl)}</div>
+      <div style="font-size:11.5px;color:var(--text-muted);margin-top:5px">Fingerprint locked on MegaETH</div>
+    </div>`;
+  } else if (isFile) {
+    const _fname  = s.file_name || 'File';
+    const _mime   = s.file_mime_type || '';
+    const _ext    = _fname.includes('.') ? _fname.split('.').pop().toUpperCase() : '';
+    let _te='📄', _tl=_ext ? _ext+' File':'File';
+    if(_mime.startsWith('image/')||/\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(_fname)){_te='🖼️';_tl=_ext?_ext+' Image':'Image';}
+    else if(_mime==='application/pdf'||/\.pdf$/i.test(_fname)){_te='📕';_tl='PDF Document';}
+    else if(_mime.startsWith('text/')||/\.(txt|md|csv|log)$/i.test(_fname)){_te='📝';_tl=_ext?_ext+' Document':'Text File';}
+    else if(/\.(doc|docx)$/i.test(_fname)){_te='📘';_tl='Word Document';}
+    else if(/\.(xls|xlsx)$/i.test(_fname)){_te='📊';_tl='Spreadsheet';}
+    else if(/\.(mp4|mov|avi|mkv|webm)$/i.test(_fname)){_te='🎬';_tl='Video';}
+    else if(/\.(mp3|wav|aac|flac)$/i.test(_fname)){_te='🎵';_tl='Audio';}
+    else if(/\.(zip|rar|7z|tar|gz)$/i.test(_fname)){_te='🗜️';_tl='Archive';}
+    const _size = s.file_size_bytes
+      ? (s.file_size_bytes>=1048576?(s.file_size_bytes/1048576).toFixed(1)+' MB':(s.file_size_bytes/1024).toFixed(1)+' KB')
+      : '';
+    const _hasTitle = s.display_title && s.display_title!=='Sealed stamp'
+      && s.display_title!==_fname && s.display_title.trim()!=='';
+    contentHtml = `<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 15px;margin-bottom:2px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+        <span style="font-size:17px;line-height:1">${_te}</span>
+        <span style="font-size:11.5px;font-weight:600;color:var(--text-sec);background:var(--surface);border:1px solid var(--border);padding:2px 9px;border-radius:20px;white-space:nowrap">${escHtml(_tl)}</span>
+      </div>
+      ${_hasTitle?`<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.display_title)}</div>`:''}
+      <div style="font-size:13px;color:var(--text-sec);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(_fname)}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;">
+        ${_size?`<span style="font-size:11.5px;color:var(--text-muted)">${_size}</span><span style="color:var(--border-md);font-size:11px">·</span>`:''}
+        <span style="font-size:11.5px;color:var(--text-muted)">Fingerprint locked on MegaETH</span>
+      </div>
+    </div>`;
+  } else if (s.text_content) {
+    const text = s.text_content.length > 200 ? s.text_content.slice(0,200) + '…' : s.text_content;
+    contentHtml = `<div class="stamp-content">${escHtml(text)}</div>`;
+  } else if (s.display_title && s.display_title !== 'Sealed stamp') {
+    contentHtml = `<div class="stamp-content">${escHtml(s.display_title)}</div>`;
+  }
+
+  let footerRight = `<a class="proof-link" href="proof.html?id=${s.proof_id}" onclick="event.stopPropagation()">Proof →</a>`;
+  if (isRevealed && s.storage_uri) {
+    const txId = s.storage_uri.replace('ar://','');
+    footerRight = `<a class="arweave-link" href="https://arweave.net/${txId}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Arweave ↗</a>`;
+  }
+
+  let badges = `<span class="badge badge-type">${escHtml(s.content_type||'text')}</span>`;
+  if (isPublic)   badges += `<span class="badge badge-public">public</span>`;
+  if (isSealed)   badges += `<span class="badge badge-sealed">sealed</span>`;
+  if (isRevealed) badges += `<span class="badge badge-revealed">revealed</span>`;
+  if (isHashOnly) badges += `<span class="badge badge-hash">private</span>`;
+  if (s.bitcoin_txid && (s.bitcoin_archive_status === 'confirmed' || s.bitcoin_archive_status === 'pending'))
+    badges += `<span class="badge" style="background:#FEF3C7;color:#92400E" title="Archived on Bitcoin">₿</span>`;
+  if (categories.length)
+    badges += `<span class="badge" style="background:var(--brand-bg);color:var(--brand)">${escHtml(categories[0])}</span>`;
+
+  return `<div class="stamp-card ${cardClass}" onclick="location.href='proof.html?id=${s.proof_id}'"
+       data-type="${escHtml(s.content_type||'')}" data-visibility="${escHtml(s.visibility||'')}" data-cats="${escHtml(categories.join(','))}">
+    <div class="stamp-card-top">
+      <div class="stamp-avatar" style="background:${avatarColor(identity)}">${escHtml(avatarInit)}</div>
+      <div class="stamp-meta">
+        <div class="stamp-author">${escHtml(displayName)}</div>
+        <div class="stamp-sub">${timeStr}${timeStr && s.proof_id ? ' · ' : ''}${s.proof_id ? 'Proof #'+s.proof_id : ''}</div>
+      </div>
+      <div class="stamp-badges">${badges}</div>
+    </div>
+    ${contentHtml}
+    <div class="stamp-footer">
+      <div class="stamp-hash"><span class="stamp-hash-text">${hashDisplay}</span>${txLink}</div>
+      ${footerRight}
+    </div>
+  </div>`;
+}
+
+async function loadStamps(reset = true) {
+  if (reset) { offset = 0; allStamps = []; }
+  const list = document.getElementById('stampList');
+  if (reset) list.innerHTML = '<div class="feed-loading"><div class="feed-spinner"></div><p>Loading stamps…</p></div>';
+  try {
+    let query = window.tsDB
+      .from('stamps_with_creator')
+      .select('proof_id, content_type, visibility, display_title, text_content, file_name, file_size_bytes, file_mime_type, tags, block_timestamp, status, storage_uri, sealed_until, revealed, content_hash, tx_hash, creator_identity, creator_address, creator_public_handle, creator_wallet_address, bitcoin_txid, bitcoin_archive_status')
+      .eq('status', 'confirmed').in('visibility', ['public','sealed','hash_only'])
+      .eq('is_hidden', false).eq('contract_address', CONTRACT);
+    if (currentFeed === 'reveals')  query = query.eq('visibility','sealed').eq('revealed', true);
+    else if (currentFeed === 'upcoming') query = query.eq('visibility','sealed').eq('revealed', false);
+    else if (currentFeed === 'bitcoin')  query = query.not('bitcoin_txid','is',null).in('bitcoin_archive_status',['confirmed','pending']);
+    else if (currentFeed === 'trending') query = query.order('view_count', {ascending:false});
+    if (currentFeed !== 'trending') query = query.order('block_timestamp', {ascending: sortAsc});
+    query = query.range(offset, offset + PAGE_SIZE - 1);
+    const { data: stamps, error } = await query;
+    if (error) throw error;
+    hasMore = stamps && stamps.length === PAGE_SIZE;
+    document.getElementById('loadMoreBtn').style.display = hasMore ? 'block' : 'none';
+    if (reset) allStamps = stamps || [];
+    else allStamps = allStamps.concat(stamps || []);
+    // Fetch display names before rendering — no raw UUIDs shown
+    await prefetchNames(allStamps);
+    renderFeed();
+  } catch(e) {
+    console.error('[Explorer] loadStamps error:', e);
+    document.getElementById('stampList').innerHTML =
+      `<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><h3>Failed to load stamps</h3><p style="font-size:13px">${escHtml(e.message)}</p></div>`;
+  }
+}
+
+function renderFeed() {
+  const list = document.getElementById('stampList');
+  const intro = list.querySelector('.feed-intro');
+  if (intro) intro.remove();
+  let filtered = allStamps;
+  if (currentChip !== 'all') {
+    filtered = allStamps.filter(s => {
+      if (currentChip === 'text') return s.content_type === 'text';
+      if (currentChip === 'url')  return s.content_type === 'url';
+      if (currentChip === 'file') return s.content_type === 'file';
+      if (currentChip === '__multi__') return (window._drawerActiveTypes || []).includes(s.content_type);
+      return getCategories(s.tags).includes(currentChip);
+    });
+  }
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+  if (q) {
+    filtered = filtered.filter(s =>
+      (s.text_content    || '').toLowerCase().includes(q) ||
+      (s.display_title   || '').toLowerCase().includes(q) ||
+      (s.file_name       || '').toLowerCase().includes(q) ||
+      (s.creator_identity|| '').toLowerCase().includes(q) ||
+      (s.creator_address || '').toLowerCase().includes(q) ||
+      // Also search by public handle / resolved display name
+      resolveNameFromStamp(s).toLowerCase().includes(q) ||
+      String(s.proof_id || '').includes(q) ||
+      getCategories(s.tags).some(c => c.toLowerCase().includes(q))
+    );
+  }
+  if (!filtered.length) {
+    list.innerHTML = `<div class="feed-empty"><div class="feed-empty-icon">🔍</div><h3>No stamps found</h3><p style="font-size:13px;color:var(--text-muted)">Try a different filter or search term.</p></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(s => buildCard(s)).join('');
+  document.getElementById('feedSubtitle').textContent = `${filtered.length} stamp${filtered.length !== 1 ? 's' : ''}`;
+}
+
+let isLoadingMore = false;
+async function loadMore() {
+  if (isLoadingMore || !hasMore) return;
+  isLoadingMore = true;
+  document.getElementById('scrollLoading').classList.add('show');
+  offset += PAGE_SIZE;
+  await loadStamps(false);
+  document.getElementById('scrollLoading').classList.remove('show');
+  isLoadingMore = false;
+}
+function setupInfiniteScroll() {
+  const sentinel = document.getElementById('scrollSentinel');
+  if (!sentinel || !('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && hasMore && !isLoadingMore) loadMore();
+  }, { rootMargin: '200px' });
+  observer.observe(sentinel);
+}
+
+async function loadTodayStats() {
+  try {
+    const [{ count: total }, { count: reveals }, { count: sealed }, { data: creatorsData }] = await Promise.all([
+      window.tsDB.from('stamps').select('*',{count:'exact',head:true}).eq('status','confirmed').eq('contract_address',CONTRACT),
+      window.tsDB.from('stamps').select('*',{count:'exact',head:true}).eq('visibility','sealed').eq('revealed',true).eq('contract_address',CONTRACT),
+      window.tsDB.from('stamps').select('*',{count:'exact',head:true}).eq('visibility','sealed').eq('revealed',false).eq('contract_address',CONTRACT),
+      window.tsDB.from('stamps').select('creator_identity').eq('status','confirmed').eq('contract_address',CONTRACT),
+    ]);
+    const uniqueCreators = new Set((creatorsData||[]).map(r => r.creator_identity).filter(Boolean)).size;
+    animateCount('st-total', total ?? 0); animateCount('st-reveals', reveals ?? 0);
+    animateCount('st-seals', sealed ?? 0); animateCount('st-creators', uniqueCreators);
+    const setEl = (id,v) => { const e=el(id); if(e) e.textContent=v; };
+    setEl('cnt-total', total ?? 0); setEl('cnt-reveals', reveals ?? 0); setEl('cnt-sealed', sealed ?? 0);
+  } catch(e) { console.warn('[Explorer] stats error:', e); }
+}
+function animateCount(id, target) {
+  const e = document.getElementById(id); if (!e) return;
+  let n = 0; const step = Math.max(1, Math.floor(target/20));
+  const t = setInterval(() => { n = Math.min(n+step, target); e.textContent = n; if (n>=target) clearInterval(t); }, 40);
+}
+function el(id) { return document.getElementById(id); }
+
+async function loadRevealCalendar() {
+  try {
+    const { data: sealed } = await window.tsDB.from('stamps').select('sealed_until, tags')
+      .eq('visibility','sealed').eq('revealed',false).eq('contract_address',CONTRACT)
+      .gte('sealed_until', new Date().toISOString()).order('sealed_until',{ascending:true}).limit(50);
+    if (!sealed?.length) { document.getElementById('calendarItems').innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0">No upcoming seals yet.</p>'; return; }
+    const groups = {};
+    sealed.forEach(s => { const k = new Date(s.sealed_until).toISOString().split('T')[0]; (groups[k]=groups[k]||[]).push(s); });
+    const dotColors = ['green','amber','brand','muted','muted','muted'];
+    const emojis    = ['🔮','🚀','📊','🔒','🔒','🔒'];
+    document.getElementById('calendarItems').innerHTML = Object.keys(groups).slice(0,5).map((k,i) => {
+      const items = groups[k];
+      const d = new Date(k+'T00:00:00Z');
+      const dd = Math.floor((d - Date.now()) / 86400000);
+      const label = dd<0?'Overdue':dd===0?'Tonight':dd===1?'Tomorrow':dd<7?d.toLocaleDateString('en-US',{weekday:'long'}):d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `<div class="cal-item"><div class="cal-dot ${dotColors[i]||'muted'}"></div><div class="cal-info"><div class="cal-when">${escHtml(label)}</div><div class="cal-desc">${items.length} stamp${items.length!==1?'s':''} unsealing</div><div class="cal-count">🔒 ${items.length} seal${items.length!==1?'s':''}</div></div><div class="cal-emoji">${emojis[i]||'🔒'}</div></div>`;
+    }).join('');
+  } catch(e) { console.warn('[Explorer] calendar error:', e); }
+}
+
+async function loadTopCreators() {
+  try {
+    const { data } = await window.tsDB.from('stamps').select('creator_identity')
+      .eq('status','confirmed').eq('contract_address',CONTRACT).neq('creator_identity',null).limit(200);
+    if (!data?.length) { document.getElementById('topCreators').innerHTML = '<p style="color:var(--text-muted);font-size:12px;text-align:center;padding:8px 0">No creators yet.</p>'; return; }
+    const counts = {};
+    data.forEach(r => { counts[r.creator_identity] = (counts[r.creator_identity]||0)+1; });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    // prefetchHandles also populates _walletCache so resolveNameFromIdentity can distinguish
+    // wallet users (have personal wallet) from email users (no wallet)
+    await prefetchHandles(sorted.map(([id]) => id));
+    document.getElementById('topCreators').innerHTML = sorted.map(([ident,cnt],i) => {
+      const name = resolveNameFromIdentity(ident);
+      return `
+      <div class="creator-item">
+        <div class="creator-rank">${i+1}</div>
+        <div class="creator-avatar" style="background:${avatarColor(ident)}">${escHtml(getAvatarInitial(ident,name))}</div>
+        <div class="creator-info">
+          <div class="creator-name">${escHtml(name)}</div>
+          <div class="creator-sub">${cnt} stamp${cnt!==1?'s':''}</div>
+        </div>
+        <div class="creator-stamps">${cnt}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.warn('[Explorer] creators error:', e); }
+}
+
+async function loadSidebarCounts() {
+  try {
+    const { data } = await window.tsDB.from('stamps').select('content_type, tags')
+      .eq('status','confirmed').eq('contract_address',CONTRACT).in('visibility',['public','sealed','hash_only']).limit(1000);
+    if (!data) return;
+    let text=0,file=0,url=0,pred=0,research=0,creative=0,news=0,crypto=0;
+    data.forEach(s => {
+      if (s.content_type==='text') text++;
+      else if (s.content_type==='file') file++;
+      else if (s.content_type==='url') url++;
+      const cats = getCategories(s.tags);
+      if (cats.includes('Predictions')) pred++;
+      if (cats.includes('Research'))   research++;
+      if (cats.includes('Creative'))   creative++;
+      if (cats.includes('News'))       news++;
+      if (cats.includes('Crypto'))     crypto++;
+    });
+    const set = (id,v) => { const e=el(id); if(e) e.textContent=v; };
+    set('cnt-text',text); set('cnt-file',file); set('cnt-url',url); set('cnt-pred',pred);
+    // Bitcoin count fetched separately
+    window.tsDB.from('stamps').select('*',{count:'exact',head:true}).eq('status','confirmed').eq('contract_address',CONTRACT).not('bitcoin_txid','is',null).in('bitcoin_archive_status',['confirmed','pending']).then(({count})=>set('cnt-bitcoin',count??0)).catch(()=>{});
+    document.querySelectorAll('[data-cat]').forEach(btn => {
+      const m = {Predictions:pred,Research:research,Creative:creative,News:news,Crypto:crypto};
+      const sp = btn.querySelector('.sidebar-count');
+      if (sp) sp.textContent = m[btn.dataset.cat] ?? 0;
+    });
+  } catch(e) { console.warn('[Explorer] sidebar counts error:', e); }
+}
+
+document.querySelectorAll('[data-feed]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-feed]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll(`[data-feed="${btn.dataset.feed}"]`).forEach(b => b.classList.add('active'));
+    currentFeed = btn.dataset.feed;
+    const titles = {latest:'Latest stamps',trending:'Trending',reveals:'Recent reveals',upcoming:'Upcoming seals',bitcoin:'₿ Bitcoin Archived'};
+    document.getElementById('feedTitle').textContent = titles[currentFeed] || 'Latest stamps';
+    loadStamps();
+  });
+});
+document.querySelectorAll('[data-chip]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-chip]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); currentChip = btn.dataset.chip; renderFeed();
+  });
+});
+document.querySelectorAll('[data-type]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); currentChip = btn.dataset.type; renderFeed();
+  });
+});
+document.querySelectorAll('[data-cat]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); currentChip = btn.dataset.cat; renderFeed();
+  });
+});
+
+function toggleSort() {
+  sortAsc = !sortAsc;
+  document.getElementById('sortLbl').textContent = sortAsc ? 'Oldest first' : 'Newest first';
+  loadStamps();
+}
+
+function openMobSearch() {
+  const bar = document.getElementById('mobSearchExpanded');
+  bar.classList.add('open');
+  setTimeout(() => { const inp = document.getElementById('mobSearchInput'); inp.focus(); inp.select(); }, 80);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+function closeMobSearch() {
+  document.getElementById('mobSearchExpanded').classList.remove('open');
+  const inp = document.getElementById('mobSearchInput');
+  inp.value = ''; inp.blur();
+  document.getElementById('searchInput').value = '';
+  renderFeed();
+}
+let _mobSearchTimer = null;
+document.getElementById('mobSearchInput').addEventListener('input', function() {
+  const q = this.value.trim();
+  document.getElementById('searchInput').value = q;
+  clearTimeout(_mobSearchTimer);
+  if (/^\d+$/.test(q) && q.length > 0) {
+    _mobSearchTimer = setTimeout(() => searchByProofId(parseInt(q, 10)), 400);
+  } else {
+    renderFeed();
+  }
+});
+document.getElementById('mobSearchInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+});
+let _searchTimer = null;
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.trim();
+  clearTimeout(_searchTimer);
+  if (/^\d+$/.test(q) && q.length > 0) {
+    // Debounce 400ms so rapid typing doesn't fire multiple DB calls
+    _searchTimer = setTimeout(() => searchByProofId(parseInt(q, 10)), 400);
+  } else {
+    renderFeed();
+  }
+});
+async function searchByProofId(proofId) {
+  const list = document.getElementById('stampList');
+  list.innerHTML = '<div class="feed-loading"><div class="feed-spinner"></div><p>Searching for Proof #' + proofId + '…</p></div>';
+  try {
+    const { data, error } = await window.tsDB
+      .from('stamps_with_creator')
+      .select('proof_id, content_type, visibility, display_title, text_content, file_name, file_size_bytes, file_mime_type, tags, block_timestamp, status, storage_uri, sealed_until, revealed, content_hash, tx_hash, creator_identity, creator_address, creator_public_handle, creator_wallet_address, bitcoin_txid, bitcoin_archive_status')
+      .eq('proof_id', proofId)
+      .eq('contract_address', CONTRACT)
+      .eq('status', 'confirmed')
+      .eq('is_hidden', false)
+      .in('visibility', ['public','sealed','hash_only'])
+      .limit(1);
+    if (error) throw error;
+    if (!data || !data.length) {
+      list.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">🔍</div><h3>Proof #' + proofId + ' not found</h3><p style="font-size:13px;color:var(--text-muted)">No public stamp with this proof ID.</p></div>';
+      return;
+    }
+    await prefetchNames(data);
+    list.innerHTML = data.map(s => buildCard(s)).join('');
+    document.getElementById('feedSubtitle').textContent = '1 result for Proof #' + proofId;
+  } catch(e) {
+    list.innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><h3>Search failed</h3><p style="font-size:13px;color:var(--text-muted)">' + escHtml(e.message) + '</p></div>';
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault(); document.getElementById('searchInput').focus();
+  }
+});
+
+function openFilterDrawer() {
+  document.getElementById('filterDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderDrawerCalendar(); renderDrawerCreators();
+}
+function renderDrawerCalendar() {
+  const el = document.getElementById('drawerCalendar');
+  if (!el || window._drawerCalDone || !window.tsDB) return;
+  const now = new Date();
+  window.tsDB.from('stamps').select('sealed_until')
+    .eq('visibility','sealed').eq('revealed',false).eq('contract_address',CONTRACT)
+    .gte('sealed_until', now.toISOString()).order('sealed_until',{ascending:true}).limit(20)
+    .then(({data}) => {
+      if (!data?.length) { el.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:13px">No upcoming reveals</div>'; return; }
+      const groups = {}; const dotColors = ['#1D9E75','#BA7517','#2854E8','#9B9A96'];
+      data.forEach(r => { const k = new Date(r.sealed_until).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}); groups[k]=(groups[k]||0)+1; });
+      const today = now.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+      const tmrw  = new Date(now.getTime()+86400000).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+      let i=0, html='';
+      Object.entries(groups).slice(0,4).forEach(([day,count]) => {
+        const label = day===today?'Today':day===tmrw?'Tomorrow':day;
+        html += `<div class="drawer-cal-item"><div class="drawer-cal-dot" style="background:${dotColors[i++%dotColors.length]}"></div><div class="drawer-cal-info"><div class="drawer-cal-when">${label}</div><div class="drawer-cal-count">🔒 ${count} stamp${count>1?'s':''} unsealing</div></div></div>`;
+      });
+      el.innerHTML = html; window._drawerCalDone = true;
+    }).catch(() => { el.innerHTML = '<div style="text-align:center;padding:8px 0;color:var(--text-muted);font-size:12px">Could not load</div>'; });
+}
+async function renderDrawerCreators() {
+  const el = document.getElementById('drawerCreators');
+  if (!el || window._drawerCreatorsDone || !window.tsDB) return;
+  window.tsDB.from('stamps').select('creator_identity')
+    .eq('status','confirmed').eq('contract_address',CONTRACT)
+    .then(async ({data}) => {
+      if (!data?.length) { el.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:13px">No creators yet</div>'; return; }
+      const counts = {};
+      data.forEach(r => { const id = r.creator_identity || 'Anonymous'; counts[id]=(counts[id]||0)+1; });
+      const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3);
+      await prefetchHandles(sorted.map(([id]) => id));
+      let html = '';
+      sorted.forEach(([id,count],idx) => {
+        const name = resolveNameFromIdentity(id);
+        html += `<div class="drawer-creator-item">
+          <div class="drawer-creator-rank">${idx+1}</div>
+          <div class="drawer-creator-avatar" style="background:${avatarColor(id)}">${escHtml(getAvatarInitial(id,name))}</div>
+          <div class="drawer-creator-info">
+            <div class="drawer-creator-name">${escHtml(name)}</div>
+            <div class="drawer-creator-sub">${count} stamp${count>1?'s':''}</div>
+          </div>
+          <div class="drawer-creator-count">${count}</div>
+        </div>`;
+      });
+      el.innerHTML = html; window._drawerCreatorsDone = true;
+    }).catch(() => { el.innerHTML = '<div style="text-align:center;padding:8px 0;color:var(--text-muted);font-size:12px">Could not load</div>'; });
+}
+function closeFilterDrawer() {
+  document.getElementById('filterDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function toggleOpt(el) { el.querySelector('.drawer-check').classList.toggle('on'); }
+function resetOpts() { document.querySelectorAll('.drawer-check').forEach(c => c.classList.add('on')); }
+function applyDrawerFilters() {
+  closeFilterDrawer();
+  // Read which type options are checked in the drawer
+  const typeOpts   = document.querySelectorAll('.drawer-section .drawer-options:first-of-type .drawer-option');
+  const checkedTypes = [];
+  // Drawer type options: Text, File, URL (in order)
+  const typeMap = ['text', 'file', 'url'];
+  document.querySelectorAll('.drawer-section')[0]
+    ?.querySelectorAll('.drawer-option')
+    .forEach((opt, i) => {
+      if (opt.querySelector('.drawer-check')?.classList.contains('on')) {
+        checkedTypes.push(typeMap[i]);
+      }
+    });
+
+  // If all types checked or none checked — show all
+  if (checkedTypes.length === 0 || checkedTypes.length === 3) {
+    currentChip = 'all';
+  } else if (checkedTypes.length === 1) {
+    currentChip = checkedTypes[0];
+  } else {
+    // Multiple types selected — use custom multi-type filter
+    window._drawerActiveTypes = checkedTypes;
+    currentChip = '__multi__';
+  }
+  renderFeed();
+}
+
+function initExplorer() {
+  document.getElementById('loadMoreBtn').style.display = 'none';
+  loadStamps(); loadTodayStats(); loadRevealCalendar(); loadTopCreators(); loadSidebarCounts(); setupInfiniteScroll();
+}
+function waitForDB(tries) {
+  tries = tries || 0;
+  if (window.tsDB) { initExplorer(); return; }
+  if (window.supabase && window.TRUTHSTAMP_CONFIG?.SUPABASE_URL && window.TRUTHSTAMP_CONFIG?.SUPABASE_ANON_KEY) {
+    try { window.tsDB = window.supabase.createClient(window.TRUTHSTAMP_CONFIG.SUPABASE_URL, window.TRUTHSTAMP_CONFIG.SUPABASE_ANON_KEY); initExplorer(); return; }
+    catch(e) { console.warn('[Explorer] direct init failed:', e.message); }
+  }
+  if (tries > 50) {
+    document.getElementById('stampList').innerHTML = '<div class="feed-empty"><div class="feed-empty-icon">⚠️</div><h3>Connection failed</h3><p style="font-size:13px;color:var(--text-muted)">Could not connect. Please <a href="" style="color:var(--brand)">refresh</a>.</p></div>';
+    return;
+  }
+  setTimeout(() => waitForDB(tries+1), 100);
+}
+document.addEventListener('DOMContentLoaded', () => waitForDB(0));
+</script>
+</body>
+</html>

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify a stamp — TruthStamp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/components.css">
+  <script src="js/analytics.js"></script>
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <style>
+    .verify-shell { max-width: 720px; margin: 0 auto; padding: var(--space-10) var(--space-6); }
+    .verify-hero { text-align: center; margin-bottom: var(--space-8); }
+    .verify-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; background: var(--color-success-bg); color: var(--color-success);
+      border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 500;
+      margin-bottom: var(--space-4);
+    }
+    .verify-title { font-size: var(--text-2xl); font-weight: 600; letter-spacing: -0.01em; margin: 0 0 var(--space-3); }
+    .verify-subtitle { font-size: var(--text-base); color: var(--color-text-secondary); max-width: 540px; margin: 0 auto; line-height: 1.6; }
+    .verify-tabs-row { display: flex; justify-content: center; margin-bottom: var(--space-5); }
+    .verify-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-6); }
+    .file-drop {
+      border: 1.5px dashed var(--color-border-strong); border-radius: var(--radius-md);
+      padding: var(--space-8) var(--space-4); text-align: center;
+      background: var(--color-surface-alt); cursor: pointer; transition: all var(--transition-fast);
+    }
+    .file-drop:hover { border-color: var(--brand-primary); background: var(--brand-primary-light); }
+    .file-drop-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-md);
+      background: var(--color-surface); color: var(--brand-primary);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-3);
+    }
+    .independent-section {
+      margin-top: var(--space-10); padding: var(--space-6);
+      background: var(--brand-primary-light); border-radius: var(--radius-lg);
+    }
+    .independent-title {
+      font-size: var(--text-lg); font-weight: 600; color: var(--brand-primary-dark);
+      margin: 0 0 var(--space-3); display: flex; align-items: center; gap: var(--space-2);
+    }
+    .independent-desc { font-size: var(--text-sm); color: var(--color-text); margin: 0 0 var(--space-4); line-height: 1.6; }
+    .independent-steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+    .independent-steps li {
+      counter-increment: step; padding: var(--space-3) 0 var(--space-3) var(--space-8);
+      position: relative; font-size: var(--text-sm); line-height: 1.6; color: var(--color-text);
+    }
+    .independent-steps li::before {
+      content: counter(step); position: absolute; left: 0; top: var(--space-3);
+      width: 24px; height: 24px; background: var(--brand-primary); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-xs); font-weight: 600;
+    }
+    .independent-steps code {
+      font-family: var(--font-mono); font-size: var(--text-xs);
+      background: var(--color-surface); padding: 2px 6px;
+      border-radius: 4px; border: 1px solid var(--color-border);
+    }
+    .independent-steps a { color: var(--brand-primary); text-decoration: underline; }
+
+    /* Result styles */
+    .result-box { display: none; margin-top: var(--space-4); padding: var(--space-4); border-radius: var(--radius-md); }
+    .result-box.show { display: block; }
+    .result-valid { background: var(--color-success-bg); border: 1px solid var(--color-success); }
+    .result-invalid { background: #FEF2F2; border: 1px solid #FCA5A5; }
+    .result-title { font-weight: 700; font-size: var(--text-base); margin: 0 0 var(--space-3); display: flex; align-items: center; gap: var(--space-2); }
+    .result-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: var(--space-2) 0; border-top: 1px solid rgba(0,0,0,0.06);
+      font-size: var(--text-sm); gap: var(--space-4);
+    }
+    .result-key { color: var(--color-text-secondary); flex-shrink: 0; font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .result-val { font-family: var(--font-mono); font-size: var(--text-xs); word-break: break-all; text-align: right; }
+    .spinner {
+      display: none; margin: var(--space-4) auto;
+      width: 28px; height: 28px;
+      border: 3px solid var(--color-border); border-top-color: var(--brand-primary);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .mt-4 { margin-top: var(--space-4); }
+    .file-selected-info { margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary); }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <span class="nav-logo">T</span><span>TruthStamp</span>
+      </a>
+      <div class="nav-links">
+        <a href="dashboard.html">My stamps</a>
+        <a href="stamp.html" class="btn btn-primary btn-sm">+ New stamp</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="verify-shell">
+
+    <div class="verify-hero">
+      <div class="verify-eyebrow">
+        <span class="badge-dot"></span>
+        Works without an account
+      </div>
+      <h1 class="verify-title">Verify any stamp.</h1>
+      <p class="verify-subtitle">
+        Check if any file or text was sealed on MegaETH. Runs entirely in your browser — we never see your data, and it works even if TruthStamp goes away.
+      </p>
+    </div>
+
+    <!-- Method tabs -->
+    <div class="verify-tabs-row">
+      <div class="tabs">
+        <button class="tab active" data-mode="text" onclick="switchMode('text')">Verify text</button>
+        <button class="tab" data-mode="file" onclick="switchMode('file')">Verify file</button>
+        <button class="tab" data-mode="proof" onclick="switchMode('proof')">By proof ID</button>
+        <button class="tab" data-mode="hash" onclick="switchMode('hash')">By hash</button>
+        <button class="tab" data-mode="bitcoin" onclick="switchMode('bitcoin')" style="display:flex;align-items:center;gap:5px;">₿ Bitcoin</button>
+      </div>
+    </div>
+
+    <!-- Text mode -->
+    <div class="verify-card" id="mode-text">
+      <label class="label" for="verify-text">Paste the exact text you want to verify</label>
+      <textarea class="textarea" id="verify-text" placeholder="The text must match character-for-character. Even one extra space will produce a different hash."></textarea>
+      <button class="btn btn-primary btn-block btn-lg mt-4" onclick="verifyText()">Verify this text</button>
+      <p class="text-muted mt-4 text-center" style="font-size: var(--text-xs);">Hashing happens locally in your browser. The text never leaves your device.</p>
+      <div style="margin-top: var(--space-3); padding: var(--space-3); background: var(--color-surface-alt); border-radius: var(--radius-md); font-size: var(--text-xs); color: var(--color-text-secondary); line-height: 1.6;">
+        ⚠️ <strong>Must be character-perfect.</strong> The text is hashed exactly as you stamped it — including all spaces, line breaks, and punctuation. If you stamped text longer than 280 characters, paste the full original text here.
+      </div>
+      <div class="spinner" id="spinner-text"></div>
+      <div class="result-box" id="result-text"></div>
+    </div>
+
+    <!-- File mode -->
+    <div class="verify-card" id="mode-file" style="display: none;">
+      <label class="file-drop" for="verify-file-input">
+        <div class="file-drop-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        </div>
+        <p style="font-size: var(--text-base); font-weight: 500; margin: 0 0 4px;">Drop a file or click to upload</p>
+        <p class="text-muted" style="font-size: var(--text-xs); margin: 0;">PDF, image, video, audio, or text — up to 100 MB</p>
+        <input type="file" id="verify-file-input" style="display:none" onchange="handleVerifyFile(this)">
+      </label>
+      <div id="file-selected-info" class="file-selected-info" style="display:none;"></div>
+      <button class="btn btn-primary btn-block btn-lg mt-4" id="verify-file-btn" onclick="verifyFile()" disabled>Verify this file</button>
+      <p class="text-muted mt-4 text-center" style="font-size: var(--text-xs);">Your file is hashed locally in your browser. It is never uploaded or stored.</p>
+
+      <!-- How file verify works -->
+      <div style="margin-top: var(--space-4); padding: var(--space-4); background: var(--color-surface-alt); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+        <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
+          <div style="flex-shrink: 0; margin-top: 2px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <p style="font-size: var(--text-sm); font-weight: 600; margin: 0 0 var(--space-1); color: var(--color-text);">How file verification works</p>
+            <p style="font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; line-height: 1.6;">
+              Drop any file here and TruthStamp computes its SHA-256 fingerprint entirely in your browser — the file never leaves your device. That fingerprint is then looked up directly on the MegaETH blockchain.
+            </p>
+            <p style="font-size: var(--text-xs); color: var(--color-text-secondary); margin: var(--space-2) 0 0; line-height: 1.6;">
+              <strong style="color: var(--color-text);">Practical use:</strong> If someone claims they stamped a document before a certain date, drag their file here. If the stamp exists, you'll see exactly when it was recorded on-chain — without needing the proof ID or hash. Perfect for third-party verification of contracts, research, or creative work.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="spinner" id="spinner-file"></div>
+      <div class="result-box" id="result-file"></div>
+    </div>
+
+    <!-- Proof ID mode -->
+    <div class="verify-card" id="mode-proof" style="display: none;">
+      <label class="label" for="verify-proof-id">Proof ID</label>
+      <input type="number" class="input" id="verify-proof-id" placeholder="e.g. 42" min="1" style="margin-bottom:0;">
+      <button class="btn btn-primary btn-block btn-lg mt-4" onclick="verifyByProofId()">Look up this proof</button>
+      <div class="spinner" id="spinner-proof"></div>
+      <div class="result-box" id="result-proof"></div>
+    </div>
+
+    <!-- Hash mode -->
+    <div class="verify-card" id="mode-hash" style="display: none;">
+      <label class="label" for="verify-hash">Content hash (SHA-256)</label>
+      <input type="text" class="input" id="verify-hash" placeholder="0x1a2b3c..." style="font-family: var(--font-mono); font-size: var(--text-sm); margin-bottom:0;">
+      <button class="btn btn-primary btn-block btn-lg mt-4" onclick="verifyByHash()">Look up on MegaETH</button>
+      <p style="margin-top: var(--space-3); font-size: var(--text-xs); color: var(--color-text-muted); line-height: 1.6;">
+        💡 Find the hash on any proof page under <strong>Technical Details → Content hash</strong>. It starts with <code>0x</code> and is 66 characters long. Only stamps made on the current contract can be looked up by hash directly on-chain.
+      </p>
+      <div class="spinner" id="spinner-hash"></div>
+      <div class="result-box" id="result-hash"></div>
+    </div>
+
+    <!-- Bitcoin Archive mode -->
+    <div class="verify-card" id="mode-bitcoin" style="display:none;">
+      <div style="margin-bottom:var(--space-5)">
+        <p style="font-size:var(--text-base);font-weight:600;margin:0 0 6px;color:var(--color-text)">
+          Verify Bitcoin Archive (TSA-1)
+        </p>
+        <p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin:0;line-height:1.6">
+          Paste a Bitcoin txid or a TruthStamp Proof ID to decode and verify the on-chain TSA-1 archive record.
+          Works independently — no TruthStamp servers required.
+        </p>
+      </div>
+
+      <!-- Input: txid or proof ID -->
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-4)">
+        <div style="flex:1;min-width:200px">
+          <label class="label" for="btc-verify-input">Bitcoin txid or Proof ID</label>
+          <input type="text" class="input" id="btc-verify-input"
+            placeholder="e.g. a1b2c3...64chars  or  65"
+            style="font-family:var(--font-mono);font-size:var(--text-sm)"
+            oninput="detectBtcInput(this.value)">
+          <p id="btc-input-hint" style="font-size:var(--text-xs);color:var(--color-text-muted);margin:4px 0 0"></p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="verifyBitcoinArchive()">
+        Verify Bitcoin archive
+      </button>
+
+      <div class="spinner" id="spinner-bitcoin"></div>
+      <div class="result-box" id="result-bitcoin"></div>
+
+      <!-- How it works -->
+      <div style="margin-top:var(--space-5);padding:var(--space-4);background:var(--color-surface-alt);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+        <p style="font-size:var(--text-sm);font-weight:600;margin:0 0 var(--space-2);color:var(--color-text)">
+          ₿ How Bitcoin archive verification works
+        </p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:0;line-height:1.7">
+          TruthStamp embeds a <strong>TSA-1 canonical manifest</strong> into Bitcoin transactions via OP_RETURN.
+          This page fetches the transaction from <a href="https://mempool.space" target="_blank" rel="noopener" style="color:var(--brand-primary)">mempool.space</a>,
+          decodes the OP_RETURN data, and reconstructs the proof record — entirely in your browser.
+          No TruthStamp servers involved. Works forever.
+        </p>
+        <div style="margin-top:var(--space-3);font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);background:var(--color-surface);padding:10px 12px;border-radius:var(--radius-md);border:1px solid var(--color-border)">
+          TSA1|proofId|hash|timestamp|arweaveRef|flag
+        </div>
+      </div>
+    </div>
+
+    <!-- Independent verification section -->
+    <div class="independent-section">
+      <h2 class="independent-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2L2 7v10l10 5 10-5V7l-10-5z"/></svg>
+        Verify without us, anytime, forever
+      </h2>
+      <p class="independent-desc">
+        Every TruthStamp proof can be verified without TruthStamp existing. Even if our website disappears tomorrow, your proof is still valid. Here's how anyone can verify it directly on MegaETH:
+      </p>
+      <ol class="independent-steps">
+        <li>
+          Calculate the SHA-256 hash of your file or text. On Mac/Linux: <code>shasum -a 256 yourfile.pdf</code>. For text and files online: <a href="https://emn178.github.io/online-tools/sha256_checksum.html" target="_blank" rel="noopener">emn178.github.io SHA-256 tool</a>.
+        </li>
+        <li>
+          Prefix the hash with <code>0x</code> if not already present. This is your content fingerprint.
+        </li>
+        <li>
+          Call <code>verifyByHash(bytes32)</code> on the TruthStamp contract using any Ethereum tool, MegaETH explorer, or the RPC: <code>https://carrot.megaeth.com/rpc</code>.<br>
+          Contract address: <code id="self-contract-addr">loading...</code>
+        </li>
+        <li>
+          The contract returns <code>(proofId, timestamp, creatorIdentity)</code>. A non-zero <code>proofId</code> proves the content existed at that moment — immutably, forever.
+        </li>
+      </ol>
+      <p style="margin-top: var(--space-4); font-size: var(--text-sm);">
+        <a href="trust.html" style="color: var(--brand-primary-dark); font-weight: 500; text-decoration: underline;">Read our full permanence promise →</a>
+      </p>
+    </div>
+
+  </main>
+
+  <footer style="background:var(--color-surface);border-top:1px solid var(--color-border);padding:48px 28px 28px;">
+    <div style="max-width:1280px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;margin-bottom:12px;">
+            <span class="nav-logo">T</span>TruthStamp
+          </div>
+          <p style="font-size:13px;color:var(--color-text-muted);line-height:1.55;max-width:240px;">Receipts for your ideas. Verifiable, tamper-proof timestamps for the AI era.</p>
+        </div>
+        <div>
+          <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--color-text-muted);margin-bottom:14px;">Product</h4>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+            <li><a href="how-it-works.html" style="font-size:13.5px;color:var(--color-text-secondary);">How it works</a></li>
+            <li><a href="pricing.html"       style="font-size:13.5px;color:var(--color-text-secondary);">Pricing</a></li>
+            <li><a href="verify.html"        style="font-size:13.5px;color:var(--color-text-secondary);">Verify a proof</a></li>
+            <li><a href="explorer.html"      style="font-size:13.5px;color:var(--color-text-secondary);">Explorer</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--color-text-muted);margin-bottom:14px;">Company</h4>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+            <li><a href="trust.html"    style="font-size:13.5px;color:var(--color-text-secondary);">Trust &amp; permanence</a></li>
+            <li><a href="usecases.html" style="font-size:13.5px;color:var(--color-text-secondary);">Use cases</a></li>
+            <li><a href="faq.html"      style="font-size:13.5px;color:var(--color-text-secondary);">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--color-text-muted);margin-bottom:14px;">Legal</h4>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+            <li><a href="terms.html"   style="font-size:13.5px;color:var(--color-text-secondary);">Terms of Service</a></li>
+            <li><a href="privacy.html" style="font-size:13.5px;color:var(--color-text-secondary);">Privacy Policy</a></li>
+            <li><a href="refunds.html" style="font-size:13.5px;color:var(--color-text-secondary);">Refund Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:24px;border-top:1px solid var(--color-border);">
+        <span style="font-size:12.5px;color:var(--color-text-muted);">© 2026 TruthStamp · Built on MegaETH &amp; Arweave</span>
+        <div style="display:flex;gap:16px;">
+          <a href="https://x.com/truthstampio" target="_blank" rel="noopener" style="font-size:14px;color:var(--color-text-muted);">𝕏</a>
+          <a href="#" title="Discord" style="font-size:14px;color:var(--color-text-muted);">💬</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script>
+    // ── Config ──────────────────────────────────────────────────────────────
+    const cfg        = window.TRUTHSTAMP_CONFIG ?? {};
+    const RPC        = cfg.CONTRACT_RPC_URL  ?? 'https://carrot.megaeth.com/rpc';
+    const CONTRACT   = cfg.CONTRACT_ADDRESS  ?? '';
+    const SUPABASE   = cfg.SUPABASE_URL      ?? '';
+    const ANON_KEY   = cfg.SUPABASE_ANON_KEY ?? '';
+    const EXPLORER   = cfg.CONTRACT_EXPLORER ?? 'https://megaeth-testnet-v2.blockscout.com';
+
+    // Fill contract address in self-verify section
+    document.getElementById('self-contract-addr').textContent = CONTRACT || 'see config.js';
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function switchMode(mode) {
+      document.querySelectorAll('[data-mode]').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+      ['text','file','proof','hash','bitcoin'].forEach(m => {
+        const el = document.getElementById('mode-' + m);
+        if (el) el.style.display = (m === mode) ? 'block' : 'none';
+      });
+    }
+
+    // ── SHA-256 helper ───────────────────────────────────────────────────────
+    async function sha256Hex(data) {
+      const buf = await crypto.subtle.digest('SHA-256', data instanceof Uint8Array ? data : new Uint8Array(data));
+      return '0x' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    // ── Spinner helpers ──────────────────────────────────────────────────────
+    function spin(id, on) { document.getElementById('spinner-' + id).style.display = on ? 'block' : 'none'; }
+    function clearResult(id) {
+      const el = document.getElementById('result-' + id);
+      el.className = 'result-box';
+      el.innerHTML = '';
+    }
+
+    // ── Verify text ──────────────────────────────────────────────────────────
+    async function verifyText() {
+      const text = document.getElementById('verify-text').value;
+      if (!text.trim()) { alert('Please paste the text to verify.'); return; }
+      clearResult('text'); spin('text', true);
+      const hash = await sha256Hex(new TextEncoder().encode(text));
+      await lookupHashOnChain(hash, null, 'text');
+    }
+
+    // ── Verify file ──────────────────────────────────────────────────────────
+    let verifyFileBuffer = null;
+
+    function handleVerifyFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        verifyFileBuffer = e.target.result;
+        const info = document.getElementById('file-selected-info');
+        info.style.display = 'block';
+        info.textContent = '📄 ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB) — ready to verify';
+        document.getElementById('verify-file-btn').disabled = false;
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function verifyFile() {
+      if (!verifyFileBuffer) { alert('Please select a file first.'); return; }
+      clearResult('file'); spin('file', true);
+      const hash = await sha256Hex(verifyFileBuffer);
+      await lookupHashOnChain(hash, null, 'file');
+    }
+
+    // ── Verify by proof ID ───────────────────────────────────────────────────
+    async function verifyByProofId() {
+      const id = document.getElementById('verify-proof-id').value.trim();
+      if (!id || isNaN(Number(id))) { alert('Please enter a valid proof ID number.'); return; }
+      clearResult('proof'); spin('proof', true);
+
+      try {
+        // First: look up in DB (proof_id alone — contract_address added by migration 012)
+        const res = await fetch(
+          SUPABASE + '/rest/v1/stamps?proof_id=eq.' + id +
+          '&select=proof_id,contract_address,content_hash,tx_hash,block_number,block_timestamp,visibility,content_type,display_title,creator_identity&limit=1',
+          { headers: { 'apikey': ANON_KEY, 'Accept': 'application/json' } }
+        );
+        const rows = await res.json();
+        const stamp = rows?.[0];
+        if (!stamp) {
+          showResult('proof', false, null, null, 'Proof #' + id + ' not found in database.');
+          return;
+        }
+        // Use the hash to verify on-chain
+        const raw = stamp.content_hash ?? '';
+        const hex = raw ? '0x' + raw.replace(/^\\x/,'').replace(/^0x/,'') : null;
+        if (!hex) { showResult('proof', false, stamp, null, 'No content hash for this proof.'); return; }
+        await lookupHashOnChain(hex, stamp, 'proof');
+      } catch(e) {
+        showResult('proof', false, null, null, 'Lookup failed: ' + e.message);
+      }
+    }
+
+    // ── Verify by hash ───────────────────────────────────────────────────────
+    async function verifyByHash() {
+      const h = document.getElementById('verify-hash').value.trim();
+      if (!h) { alert('Please enter a hash.'); return; }
+      clearResult('hash'); spin('hash', true);
+      const hash = h.startsWith('0x') ? h : '0x' + h;
+      await lookupHashOnChain(hash, null, 'hash');
+    }
+
+    // ── Core blockchain lookup ────────────────────────────────────────────────
+    async function lookupHashOnChain(hash, dbStamp, resultId) {
+      try {
+        // verifyByHash(bytes32) selector = 0x5d4dd1be
+        // From compilation JSON functionHashes: "5d4dd1be": "verifyByHash(bytes32)"
+        const selector = '5d4dd1be';
+        const padded   = hash.replace('0x','').padStart(64,'0');
+        const callData = '0x' + selector + padded;
+
+        const res = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', method: 'eth_call',
+            params: [{ to: CONTRACT, data: callData }, 'latest'],
+            id: 1
+          })
+        });
+        const rpc   = await res.json();
+        const data  = rpc.result ?? '';
+        const clean = data.replace('0x','');
+
+        console.log('[verify] verifyByHash RPC result:', data);
+
+        // Returns (uint256 proofId, uint256 timestamp, string creatorIdentity)
+        const proofId   = clean.length >= 64  ? parseInt(clean.slice(0,64),   16) : 0;
+        const timestamp = clean.length >= 128 ? parseInt(clean.slice(64,128), 16) : 0;
+
+        console.log('[verify] proofId:', proofId, 'timestamp:', timestamp);
+
+        if (proofId && proofId > 0 && timestamp > 0) {
+          // On-chain verified ✅ — enrich with DB data if available
+          let stamp = dbStamp;
+          if (!stamp) {
+            try {
+              const r = await fetch(
+                SUPABASE + '/rest/v1/stamps?proof_id=eq.' + proofId + '&select=*&limit=1',
+                { headers: { 'apikey': ANON_KEY } }
+              );
+              const rows = await r.json();
+              stamp = rows?.[0] ?? null;
+            } catch { /* DB optional — chain proof is enough */ }
+          }
+          const stampedAt = new Date(timestamp * 1000).toUTCString();
+          const creator   = stamp?.creator_identity ?? 'See proof page';
+          showResult(resultId, true, stamp, hash, null, { ts: timestamp, stampedAt, creator, proofId });
+          return;
+        }
+
+        // Chain returned zero — try DB fallback
+        await lookupViaDB(hash, dbStamp, resultId);
+
+      } catch(e) {
+        console.error('[verify] lookupHashOnChain error:', e);
+        showResult(resultId, false, dbStamp, hash, 'Verification error: ' + e.message);
+      }
+    }
+
+    // Fallback: look up via DB then cross-check on chain with getStamp(proofId)
+    async function lookupViaDB(hash, dbStamp, resultId) {
+      try {
+        const hexWithoutPrefix = hash.replace('0x','');
+        const res = await fetch(
+          SUPABASE + '/rest/v1/stamps?content_hash=eq.\\x' + hexWithoutPrefix +
+          '&select=proof_id,content_hash,tx_hash,display_title,creator_identity,block_timestamp&limit=1',
+          { headers: { 'apikey': ANON_KEY, 'Accept': 'application/json' } }
+        );
+        const rows  = await res.json();
+        const found = rows?.[0];
+
+        console.log('[verify] DB fallback result:', found);
+
+        if (!found) {
+          showResult(resultId, false, null, hash,
+            'Not found on-chain or in database. This content has not been stamped, or the hash does not match exactly.');
+          return;
+        }
+
+        // Cross-check on chain using getStamp(proofId)
+        // getStamp(uint256) selector = 0xd2064e2f
+        const selector = 'd2064e2f';
+        const padded   = found.proof_id.toString(16).padStart(64,'0');
+        const r2 = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', method: 'eth_call',
+            params: [{ to: CONTRACT, data: '0x' + selector + padded }, 'latest'],
+            id: 2
+          })
+        });
+        const rpc2  = await r2.json();
+        const clean = (rpc2.result ?? '').replace('0x','');
+
+        console.log('[verify] getStamp RPC result length:', clean.length);
+
+        // Stamp struct: contentHash(32) + creator+createdAt+schemaVersion+contentType+visibility+revealed(32) + sealedUntil(32) + ...
+        // createdAt is packed in slot 1 at bytes 20-28 (uint64 at offset 160 bits from slot start)
+        // Easier: just check if result is non-empty (stamp exists)
+        const hasOnChainRecord = clean.length >= 128;
+
+        if (!hasOnChainRecord) {
+          showResult(resultId, false, found, hash, 'On-chain record not found. Proof may still be pending.');
+          return;
+        }
+
+        // Use DB timestamp if chain doesn't give a clean one
+        const ts = found.block_timestamp ? Math.floor(new Date(found.block_timestamp).getTime() / 1000) : 0;
+        const stampedAt = ts ? new Date(ts * 1000).toUTCString() : 'See proof page';
+
+        showResult(resultId, true, found, hash, null, {
+          ts, stampedAt, creator: found.creator_identity ?? '—', proofId: found.proof_id
+        });
+
+      } catch(e) {
+        console.error('[verify] lookupViaDB error:', e);
+        showResult(resultId, false, dbStamp, hash, 'Database lookup failed: ' + e.message);
+      }
+    }
+
+    // ── Fetch StampCreated event log to get Arweave URI ──────────────────────
+    // StampCreated topic0 = 0x42238752c6462d1388ed694ac7c03dd761a5e3c9b1b95c4ac0b827d5e53b7624
+    // StampRevealed topic0 = 0x0cefc025664943c9b65dbaf4f2261fc28d8fcf66a08e968f185bebe12697aaae
+    // Indexed: StampCreated: topic[1]=proofId, topic[2]=creator, topic[3]=contentHash
+    // Indexed: StampRevealed: topic[1]=proofId, topic[2]=revealer
+    async function fetchEventArweaveUri(proofId, contentHash) {
+      try {
+        const proofIdPadded = BigInt(proofId).toString(16).padStart(64, '0');
+
+        // First try StampRevealed — has the actual storageUri for sealed stamps
+        const revealedRes = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', id: 11, method: 'eth_getLogs',
+            params: [{
+              fromBlock: '0x1',
+              toBlock:   'latest',
+              address:   CONTRACT,
+              topics: [
+                '0x0cefc025664943c9b65dbaf4f2261fc28d8fcf66a08e968f185bebe12697aaae',
+                '0x' + proofIdPadded
+              ]
+            }]
+          })
+        });
+        const revealedRpc  = await revealedRes.json();
+        const revealedLogs = revealedRpc.result ?? [];
+        console.log('[verify] StampRevealed logs:', revealedLogs.length);
+
+        if (revealedLogs.length) {
+          // StampRevealed data: (string storageUri) — single dynamic string
+          const data = revealedLogs[0].data.replace('0x','');
+          // data layout: offset(32) + length(32) + string bytes
+          function hexToStr(hex) {
+            return decodeURIComponent(hex.replace(/../g, '%$&'));
+          }
+          const offset  = parseInt(data.slice(0, 64), 16);
+          const length  = parseInt(data.slice(offset*2, offset*2 + 64), 16);
+          const strHex  = data.slice(offset*2 + 64, offset*2 + 64 + length*2);
+          const storageUri = strHex ? hexToStr(strHex) : '';
+          console.log('[verify] StampRevealed storageUri:', storageUri);
+          if (storageUri) {
+            return {
+              storageUri,
+              shortText:  '',
+              createdAt:  0,
+              txHash:     revealedLogs[0].transactionHash,
+              isRevealed: true,
+            };
+          }
+        }
+
+        // Fallback: StampCreated event (for public stamps with storageUri at creation)
+        const res = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0', id: 10, method: 'eth_getLogs',
+            params: [{
+              fromBlock: '0x1',
+              toBlock:   'latest',
+              address:   CONTRACT,
+              topics: [
+                '0x42238752c6462d1388ed694ac7c03dd761a5e3c9b1b95c4ac0b827d5e53b7624',
+                '0x' + proofIdPadded
+              ]
+            }]
+          })
+        });
+        const rpc  = await res.json();
+        console.log('[verify] StampCreated logs result:', rpc.result?.length);
+
+        const logs = rpc.result ?? [];
+        if (!logs.length) {
+          console.log('[verify] No logs found for proofId', proofId);
+          return null;
+        }
+
+        // Decode event data ABI encoding:
+        // (uint8 contentType, uint8 visibility, uint64 sealedUntil,
+        //  string hashAlgo, string storageUri, string creatorIdentity,
+        //  uint64 createdAt, string shortText)
+        //
+        // ABI layout (each slot = 32 bytes = 64 hex chars):
+        //   slot 0: contentType  (static uint8)
+        //   slot 1: visibility   (static uint8)
+        //   slot 2: sealedUntil  (static uint64)
+        //   slot 3: offset → hashAlgo
+        //   slot 4: offset → storageUri   ← we want this
+        //   slot 5: offset → creatorIdentity
+        //   slot 6: createdAt    (static uint64)
+        //   slot 7: offset → shortText
+
+        const data = logs[0].data.replace('0x','');
+
+        function slot(n)     { return data.slice(n*64, (n+1)*64); }
+        function slotUint(n) { return parseInt(slot(n), 16); }
+
+        // Read a dynamic string given its offset-slot index
+        // Offset is in BYTES from start of data
+        function readStr(offsetSlotIndex) {
+          const byteOffset = slotUint(offsetSlotIndex);
+          const hexStart   = byteOffset * 2;
+          const length     = parseInt(data.slice(hexStart, hexStart + 64), 16);
+          if (!length) return '';
+          const strHex = data.slice(hexStart + 64, hexStart + 64 + length * 2);
+          // Pure browser hex→UTF-8 string (no Buffer.from needed)
+          return decodeURIComponent(
+            strHex.replace(/../g, '%$&')
+          );
+        }
+
+        const storageUri = readStr(4);
+        const shortText  = readStr(7);
+        const createdAt  = slotUint(6);
+        const txHash     = logs[0].transactionHash;
+
+        console.log('[verify] Decoded — storageUri:', storageUri,
+                    'shortText:', shortText, 'createdAt:', createdAt);
+
+        return { storageUri, shortText, createdAt, txHash };
+
+      } catch(e) {
+        console.warn('[verify] fetchEventArweaveUri error:', e.message);
+        return null;
+      }
+    }
+
+    // ── Render result ────────────────────────────────────────────────────────
+    async function showResult(resultId, valid, dbStamp, hash, errorMsg, chain) {
+      spin(resultId, false);
+      const el = document.getElementById('result-' + resultId);
+      el.className = 'result-box show ' + (valid ? 'result-valid' : 'result-invalid');
+
+      if (!valid) {
+        el.innerHTML =
+          '<p class="result-title" style="color:#991B1B;">❌ Not verified</p>' +
+          '<p style="font-size:var(--text-sm); color:#7f1d1d; margin:0;">' + (errorMsg || 'Not found.') + '</p>';
+        return;
+      }
+
+      const proofUrl = window.location.origin + '/proof.html?id=' + chain.proofId;
+      const title    = dbStamp?.display_title ?? '';
+
+      // Show basic result immediately
+      el.innerHTML =
+        '<p class="result-title" style="color: var(--color-success);">✅ Verified on MegaETH</p>' +
+        (title ? '<p style="font-size:var(--text-sm); font-weight:600; color:var(--color-text); margin:0 0 var(--space-3);">' + escHtml(title) + '</p>' : '') +
+        '<div class="result-row"><span class="result-key">Stamped at</span><span class="result-val">' + chain.stampedAt + '</span></div>' +
+        '<div class="result-row"><span class="result-key">Proof ID</span><span class="result-val"><a href="' + proofUrl + '" target="_blank" style="color:var(--brand-primary);">#' + chain.proofId + ' →</a></span></div>' +
+        (hash ? '<div class="result-row"><span class="result-key">Content hash</span><span class="result-val" style="font-family:var(--font-mono); font-size:var(--text-xs); word-break:break-all;">' + escHtml(hash) + '</span></div>' : '') +
+        '<div class="result-row"><span class="result-key">Creator identity</span><span class="result-val">' + escHtml(chain.creator) + '</span></div>' +
+        '<div id="event-enrichment-' + resultId + '" style="color:var(--color-text-muted); font-size:var(--text-xs); padding: var(--space-2) 0;">⏳ Fetching event log for Arweave link...</div>' +
+        '<div class="result-row" style="border-top:none; margin-top:var(--space-2);">' +
+          '<a href="' + proofUrl + '" target="_blank" class="btn btn-secondary" style="font-size:var(--text-sm);">View full proof page →</a>' +
+          (dbStamp?.tx_hash ? '<a href="' + EXPLORER + '/tx/' + dbStamp.tx_hash + '" target="_blank" class="btn btn-ghost" style="font-size:var(--text-sm);">View on explorer →</a>' : '') +
+        '</div>';
+
+      // Async: fetch event log for Arweave URI + tx hash
+      const event = await fetchEventArweaveUri(chain.proofId, hash ?? '');
+      const enrichEl = document.getElementById('event-enrichment-' + resultId);
+      if (!enrichEl) return;
+
+      if (event?.storageUri) {
+        const txHash      = event.txHash ?? dbStamp?.tx_hash ?? '';
+        const arweaveTxId = event.storageUri.replace('ar://','');
+        const revealLabel = event.isRevealed ? 'View revealed content on Arweave ↗' : 'View TSP-1 payload on Arweave ↗';
+        enrichEl.innerHTML =
+          '<div class="result-row" style="margin-top:0;">' +
+            '<span class="result-key">Arweave ' + (event.isRevealed ? '(revealed)' : 'proof') + '</span>' +
+            '<span class="result-val">' +
+              '<a href="https://arweave.net/' + arweaveTxId + '" target="_blank" rel="noopener" ' +
+                 'style="color:var(--brand-primary); font-size:var(--text-xs);">' +
+                revealLabel +
+              '</a>' +
+            '</span>' +
+          '</div>' +
+          (event.shortText ? '<div class="result-row"><span class="result-key">Short text</span><span class="result-val">' + escHtml(event.shortText) + '</span></div>' : '') +
+          (txHash ? '<div class="result-row"><span class="result-key">Tx hash</span><span class="result-val" style="font-family:var(--font-mono); font-size:var(--text-xs); word-break:break-all;"><a href="' + EXPLORER + '/tx/' + txHash + '" target="_blank" style="color:var(--brand-primary);">' + txHash.slice(0,18) + '…</a></span></div>' : '');
+      } else {
+        enrichEl.innerHTML =
+          event === null
+            ? '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:var(--space-1) 0;">Event log not available from RPC (hash-only or sealed stamp, or RPC limit).</p>'
+            : '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:var(--space-1) 0;">No Arweave URI in event (hash-only stamp stores no content).</p>';
+      }
+    }
+
+    // ── Bitcoin Archive Verification ─────────────────────────────────────────
+    const MEMPOOL_API = 'https://mempool.space/api';
+
+    // Auto-detect if input is txid (64 hex chars) or proof ID (number)
+    function detectBtcInput(val) {
+      const hint = document.getElementById('btc-input-hint');
+      if (!hint) return;
+      const v = val.trim();
+      if (!v) { hint.textContent = ''; return; }
+      if (/^[0-9]+$/.test(v)) {
+        hint.textContent = '🔢 Detected: Proof ID — will look up Bitcoin txid from TruthStamp';
+      } else if (/^[0-9a-f]{64}$/i.test(v)) {
+        hint.textContent = '₿ Detected: Bitcoin txid — will fetch directly from mempool.space';
+      } else {
+        hint.textContent = '⚠️ Enter a 64-character Bitcoin txid or a numeric Proof ID';
+      }
+    }
+
+    async function verifyBitcoinArchive() {
+      const raw = document.getElementById('btc-verify-input').value.trim();
+      if (!raw) { alert('Please enter a Bitcoin txid or Proof ID.'); return; }
+
+      clearResult('bitcoin');
+      spin('bitcoin', true);
+
+      try {
+        let txid = '';
+
+        if (/^[0-9a-f]{64}$/i.test(raw)) {
+          // Direct txid
+          txid = raw.toLowerCase();
+        } else if (/^[0-9]+$/.test(raw)) {
+          // Proof ID — look up txid from Supabase
+          const res = await fetch(
+            SUPABASE + '/rest/v1/stamps?proof_id=eq.' + raw +
+            '&select=bitcoin_txid,bitcoin_archive_status&limit=1',
+            { headers: { 'apikey': ANON_KEY, 'Accept': 'application/json' } }
+          );
+          const rows = await res.json();
+          if (!rows?.[0]?.bitcoin_txid) {
+            showBtcResult(false, null, `Proof #${raw} has not been archived to Bitcoin yet.`);
+            return;
+          }
+          txid = rows[0].bitcoin_txid;
+        } else {
+          showBtcResult(false, null, 'Invalid input — enter a 64-character Bitcoin txid or a numeric Proof ID.');
+          return;
+        }
+
+        // Fetch TX from mempool.space
+        const txRes = await fetch(`${MEMPOOL_API}/tx/${txid}`);
+        if (!txRes.ok) {
+          if (txRes.status === 404)
+            showBtcResult(false, null, 'Transaction not found on Bitcoin network. Check the txid and try again.');
+          else
+            showBtcResult(false, null, `mempool.space returned ${txRes.status}`);
+          return;
+        }
+        const tx = await txRes.json();
+
+        // Find OP_RETURN output
+        const opOut = tx.vout?.find(o =>
+          o.scriptpubkey_type === 'op_return' || o.scriptpubkey?.startsWith('6a')
+        );
+        if (!opOut) {
+          showBtcResult(false, null, 'No OP_RETURN output found in this transaction — not a TSA-1 archive.');
+          return;
+        }
+
+        // Decode — handle all encoding variants
+        const scriptHex = opOut.scriptpubkey;
+        let dataHex = '';
+        if (scriptHex.startsWith('6a4c'))      dataHex = scriptHex.slice(6);
+        else if (scriptHex.startsWith('6a4d')) dataHex = scriptHex.slice(8);
+        else                                    dataHex = scriptHex.slice(4);
+
+        const bytes   = new Uint8Array(dataHex.match(/.{2}/g).map(h => parseInt(h, 16)));
+        const decoded = new TextDecoder().decode(bytes).trim();
+
+        if (!decoded.startsWith('TSA1|')) {
+          showBtcResult(false, null,
+            `OP_RETURN data found but not a TSA-1 payload: "${decoded.slice(0, 40)}…"`);
+          return;
+        }
+
+        // Parse TSA-1 fields
+        const parts    = decoded.split('|');
+        // TSA1 | proofId | hash | timestamp | arweaveRef | flags
+        const protocol  = parts[0] ?? 'TSA1';
+        const proofId   = parts[1] ?? '—';
+        const hashShort = parts[2] ?? '—';
+        const tsUnix    = parseInt(parts[3] ?? '0');
+        const arwRef    = parts[4] ?? '—';
+        const flags     = parts[5] ?? '—';
+
+        const flagLabels = { P:'Public', S:'Sealed', R:'Revealed', H:'Hash-only' };
+        const flagLabel  = flagLabels[flags] ?? flags;
+        const stampedAt  = tsUnix ? new Date(tsUnix * 1000).toUTCString() : '—';
+        const blockHeight= tx.status?.block_height;
+        const confirmed  = tx.status?.confirmed ?? false;
+
+        // Try to look up full proof from Supabase for enrichment
+        let fullProof = null;
+        if (/^[0-9]+$/.test(proofId)) {
+          try {
+            const r = await fetch(
+              SUPABASE + '/rest/v1/stamps?proof_id=eq.' + proofId +
+              '&select=proof_id,display_title,content_hash,storage_uri,visibility,bitcoin_txid&limit=1',
+              { headers: { 'apikey': ANON_KEY } }
+            );
+            const rows = await r.json();
+            fullProof = rows?.[0] ?? null;
+          } catch { /* optional enrichment */ }
+        }
+
+        showBtcResult(true, {
+          txid, decoded, protocol, proofId, hashShort, tsUnix, stampedAt,
+          arwRef, flags, flagLabel, blockHeight, confirmed, fullProof,
+        }, null);
+
+      } catch(e) {
+        showBtcResult(false, null, 'Verification error: ' + e.message);
+      }
+    }
+
+    function showBtcResult(valid, data, errorMsg) {
+      spin('bitcoin', false);
+      const el = document.getElementById('result-bitcoin');
+      el.className = 'result-box show ' + (valid ? 'result-valid' : 'result-invalid');
+
+      if (!valid) {
+        el.innerHTML =
+          '<p class="result-title" style="color:#991B1B">❌ Not a valid TSA-1 archive</p>' +
+          '<p style="font-size:var(--text-sm);color:#7f1d1d;margin:0">' + escHtml(errorMsg) + '</p>';
+        return;
+      }
+
+      const d = data;
+      const proofUrl   = d.proofId !== '—' ? `proof.html?id=${d.proofId}` : null;
+      const mempoolUrl = `https://mempool.space/tx/${d.txid}`;
+      const vbUrl      = `https://viewblock.io/arweave/tx/${d.txid}`;
+      const fullHash   = d.fullProof?.content_hash
+        ? '0x' + d.fullProof.content_hash.replace(/^\x/,'').replace(/^0x/,'')
+        : null;
+      const arweaveUri = d.fullProof?.storage_uri
+        ? d.fullProof.storage_uri.replace('ar://','')
+        : null;
+
+      el.innerHTML = `
+        <p class="result-title" style="color:var(--color-success)">
+          ✅ Valid TSA-1 Bitcoin Archive
+        </p>
+        ${d.fullProof?.display_title
+          ? `<p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);margin:0 0 var(--space-3)">${escHtml(d.fullProof.display_title)}</p>`
+          : ''}
+
+        <div class="result-row"><span class="result-key">Protocol</span>
+          <span class="result-val">${escHtml(d.protocol)} · TruthStamp Bitcoin Archive v1</span></div>
+
+        <div class="result-row"><span class="result-key">Proof ID</span>
+          <span class="result-val">${proofUrl
+            ? `<a href="${proofUrl}" target="_blank" style="color:var(--brand-primary)">#${d.proofId} →</a>`
+            : escHtml(d.proofId)}</span></div>
+
+        <div class="result-row"><span class="result-key">Stamped at</span>
+          <span class="result-val">${escHtml(d.stampedAt)}</span></div>
+
+        <div class="result-row"><span class="result-key">Content hash (partial)</span>
+          <span class="result-val" style="font-family:var(--font-mono)">${escHtml(d.hashShort)}…
+            ${fullHash ? `<br><span style="font-size:10px;color:var(--color-text-muted)">Full: ${escHtml(fullHash.slice(0,20))}…</span>` : ''}
+          </span></div>
+
+        <div class="result-row"><span class="result-key">Arweave reference</span>
+          <span class="result-val" style="font-family:var(--font-mono)">
+            ${arweaveUri
+              ? `<a href="https://arweave.net/${arweaveUri}" target="_blank" rel="noopener" style="color:var(--brand-primary)">${escHtml(d.arwRef)}… ↗</a>`
+              : escHtml(d.arwRef) + '…'}
+          </span></div>
+
+        <div class="result-row"><span class="result-key">Proof type</span>
+          <span class="result-val">${escHtml(d.flagLabel)}</span></div>
+
+        <div class="result-row"><span class="result-key">Bitcoin block</span>
+          <span class="result-val">${d.confirmed && d.blockHeight
+            ? `#${d.blockHeight.toLocaleString()} · Confirmed`
+            : '⏳ In mempool (unconfirmed)'}</span></div>
+
+        <div class="result-row"><span class="result-key">Raw TSA-1 payload</span>
+          <span class="result-val" style="font-family:var(--font-mono);font-size:10px;word-break:break-all">${escHtml(d.decoded)}</span></div>
+
+        <div class="result-row" style="border-top:none;margin-top:var(--space-2);flex-wrap:wrap;gap:8px">
+          ${proofUrl ? `<a href="${proofUrl}" target="_blank" class="btn btn-secondary" style="font-size:var(--text-sm)">View full proof →</a>` : ''}
+          <a href="${mempoolUrl}" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:var(--text-sm)">mempool.space ↗</a>
+          <a href="${vbUrl}" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:var(--text-sm)">Arweave TX ↗</a>
+        </div>`;
+    }
+
+    function escHtml(s) {
+      return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+  </script>
+  <script src="js/nav.js"></script>
+</body>
+</html>
